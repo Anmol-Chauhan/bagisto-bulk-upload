@@ -1,8 +1,8 @@
-@extends('admin::layouts.content')
+<x-admin::layouts>
 
-@section('page_title')
-    {{ __('bulkupload::app.admin.bulk-upload.run-profile.index') }}
-@stop
+    <x-slot:title>
+        @lang('bulkupload::app.admin.bulk-upload.run-profile.index')
+    </x-slot>
 
 @push('css')
     <style>
@@ -37,20 +37,14 @@
     </style>
 @endpush
 
-@section('content')
+    <div class="app-profiler">
+        <div class="flex justify-between items-center">
+            <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.index')</p>  
+        </div><br>
+        <v-profiler></v-profiler>
+    </div>
 
-    <!-- Run Profile -->
-    <accordian :title="'{{ __('bulkupload::app.admin.bulk-upload.run-profile.index') }}'" :active="true">
-        <div slot="body">
-            <div class="app-profiler">
-                <profiler></profiler>
-            </div>
-        </div>
-    </accordian>
-
-@stop
-
-@push('scripts')
+@pushOnce('scripts')
     <script type="text/x-template" id="profiler-template">
         <div class="run-profile">
             <run-profile-form
@@ -62,56 +56,97 @@
 
     <script type="text/x-template" id="run-profile-form-template">
         <div class="run-profile">
+            <x-admin::form>
+                <x-admin::form.control-group class="w-full mb-[10px]">
+                    <x-admin::form.control-group.label class="required">
+                        @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')
+                    </x-admin::form.control-group.label>
 
-            <form>
-                <div class="control-group">
-                    <label for="attribute_family_id">
-                        {{ __('admin::app.catalog.products.family') }}
-                    </label>
-
-                    <select class="control" @change="getImporter()" id="attribute_family_id" v-model="attribute_family_id" name="attribute_family_id">
-                        <option>
-                            {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
+                    <x-admin::form.control-group.control
+                        type="select"
+                        name="attribute_family_id"
+                        id="attribute_family_id"
+                        rules="required"
+                        @change="getImporter"
+                        :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
+                    >
+                        <option value="">
+                            @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                         </option>
 
                         <option v-for="family in families" :key="family.id" :value="family.id">
                             @{{ family.name }}
                         </option>
-                    </select>
-                </div>
+                    </x-admin::form.control-group.control>
 
-                <div class="control-group">
-                    <label for="export-product-type">
-                        {{ __('bulkupload::app.admin.bulk-upload.bulk-product-importer.index') }}
-                    </label>
+                    <x-admin::form.control-group.error
+                        class="mt-3"
+                        control-name="attribute_family_id"
+                    >
+                    </x-admin::form.control-group.error>
+                </x-admin::form.control-group>
 
-                    <select class="control" @change="setProductFiles()" id="data-flow-profile" v-model="bulk_product_importer_id" name="bulk_product_importer_id">
-                        <option>
-                            {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
+                <x-admin::form.control-group class="w-full mb-[10px]">
+                    <x-admin::form.control-group.label class="required">
+                        @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')
+                    </x-admin::form.control-group.label>
+
+                    <x-admin::form.control-group.control
+                        type="select"
+                        name="bulk_product_importer_id"
+                        id="bulk_product_importer_id"
+                        rules="required"
+                        v-model="bulk_product_importer_id"
+                        @change="setProductFiles"
+                        :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
+                    >
+                        <option value="">
+                            @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                         </option>
 
                         <option v-for="importer in product_importer" :key="importer.id" :value="importer.id">
                             @{{ importer.name }}
                         </option>
-                    </select>
-                </div>
+                    </x-admin::form.control-group.control>
 
-                <div class="control-group">
-                    <label for="product_file">
-                        {{ __('bulkupload::app.admin.bulk-upload.run-profile.select-file') }}
-                    </label>
+                    <x-admin::form.control-group.error
+                        class="mt-3"
+                        control-name="bulk_product_importer_id"
+                    >
+                    </x-admin::form.control-group.error>
+                </x-admin::form.control-group>
 
-                    <select class="control" id="product_file" v-model="product_file_id" name="product_file">
-                        <option>
-                            {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
+                <x-admin::form.control-group class="w-full mb-[10px]">
+                    <x-admin::form.control-group.label class="required">
+                        @lang('bulkupload::app.admin.bulk-upload.run-profile.select-file')
+                    </x-admin::form.control-group.label>
+
+                    <x-admin::form.control-group.control
+                        type="select"
+                        name="product_file"
+                        id="product_file"
+                        rules="required"
+                        v-model="product_file_id"
+                        @change="setProductFiles"
+                        :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
+                    >
+                        <option value="">
+                            @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                         </option>
 
                         <option v-for="file in product_file" :key="file.id" :value="file.id" v-if="file.status">
                             @{{ file.file_name }}
                             (@{{ formatDateTime(file.created_at) }})
                         </option>
-                    </select>
-                </div>
+                    </x-admin::form.control-group.control>
+
+                    <x-admin::form.control-group.error
+                        class="mt-3"
+                        control-name="product_file"
+                    >
+                    </x-admin::form.control-group.error>
+                </x-admin::form.control-group>
+
                 <div class="control-group product-uploading-message">
                     <p v-if="running">Time Taken: @{{ formattedTime }}</p>
                 </div>
@@ -125,7 +160,7 @@
                         {{ __('bulkupload::app.admin.bulk-upload.upload-file.delete') }}
                     </span>
                 </div>
-            </form>
+            </x-admin::form>
             <br>
             <div class="control-group scrollStyle">
                 <ul>
@@ -138,45 +173,44 @@
                     <li v-for="(item, index) in  notUploadedProductList" :key="index">Not uploaded product validation record:- @{{ item.error }}</li>
                 </ul>
             </div>
+        
+            <div class="flex justify-between items-center">
+                <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p>
 
-            <accordian :title="'{{ __('bulkupload::app.admin.bulk-upload.run-profile.error') }}'" :active="true">
-                <div slot="body">
+                <div v-for="(item, index) in errorCsvFile" :key="index" >
 
-                    <div v-for="(item, index) in errorCsvFile" :key="index" >
+                    <table>
+                        <tr>
+                            <th> Profiler Name:- @{{ profilerNames[index] }}</th>
+                        </tr>
 
-                        <table>
-                            <tr>
-                                <th> Profiler Name:- @{{ profilerNames[index] }}</th>
-                            </tr>
+                        <tr>
+                            <th> CSV Link </th>
+                            <th> Date & Time </th>
+                            <th> Delete File </th>
+                        </tr>
 
-                            <tr>
-                                <th> CSV Link </th>
-                                <th> Date & Time </th>
-                                <th> Delete File </th>
-                            </tr>
-
-                            <tr v-for="(record) in item">
-                                <td>
-                                    <a :href="record.link">Download CSV</a>
-                                </td>
-                                <td>
-                                    <span>@{{ record.time }}</span>
-                                </td>
-                                <td>
-                                    <span @click="deleteCSV(index, record.fileName)">
-                                        <button class="btn btn-primary">Delete</button>
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                        <tr v-for="(record) in item">
+                            <td>
+                                <a :href="record.link">Download CSV</a>
+                            </td>
+                            <td>
+                                <span>@{{ record.time }}</span>
+                            </td>
+                            <td>
+                                <span @click="deleteCSV(index, record.fileName)">
+                                    <button class="btn btn-primary">Delete</button>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-            </accordian>
+            </div>
         </div>
     </script>
 
-    <script>
-        Vue.component('profiler', {
+    <script type="module">
+         app.component('v-profiler', {
             template:'#profiler-template',
 
             data: function() {
@@ -185,12 +219,12 @@
             },
         })
 
-        Vue.component('run-profile-form', {
+         app.component('run-profile-form', {
             template:'#run-profile-form-template',
 
             props: ['families'],
 
-            data: function() {
+            data() {
                 return {
                     product_file: [],
                     product_file_id: '',
@@ -232,7 +266,7 @@
                 },
             },
 
-            created: function() {
+            created() {
                 this.getErrorCsvFile();
             },
 
@@ -340,9 +374,9 @@
 
                 getErrorCsvFile: function(e) {
                     const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.download-csv') }}"
-
                     this.$http.get(uri)
                         .then((result) => {
+                            
                             this.errorCsvFile = result.data.resultArray;
                             this.profilerNames = result.data.profilerNames;
                         })
@@ -449,7 +483,7 @@
                     }));
                 },
                 loadStoredTimer() {
-                    conststoredState = localStorage.getItem('timerState');
+                    let conststoredState = localStorage.getItem('timerState');
                     
                     if (conststoredState) {
                         const { running, startTime, seconds } = JSON.parse(conststoredState);
@@ -466,5 +500,6 @@
         });
     </script>
  
+@endPushOnce
 
-@endpush
+</x-admin::layouts>

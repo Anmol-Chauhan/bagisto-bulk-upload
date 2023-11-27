@@ -105,7 +105,7 @@ class BulkProductImporterDataGrid extends DataGrid
         $this->addAction([
             'title'  => trans('admin::app.datagrid.edit'),
             'method' => 'GET',
-            'url'          => function ($row) {
+            'url'    => function ($row) {
                 return route('admin.bulk-upload.bulk-product-importer.edit', $row->id);
             },
             'icon'   => 'icon icon-edit',
@@ -114,7 +114,7 @@ class BulkProductImporterDataGrid extends DataGrid
         $this->addAction([
             'title'        => trans('admin::app.datagrid.delete'),
             'method'       => 'POST',
-            'url'    => function ($row) {
+            'url'          => function ($row) {
                 return route('admin.bulk-upload.bulk-product-importer.delete', $row->id);
             },
             'confirm_text' => trans('ui::app.datagrid.mass-action.delete', ['resource' => 'address']),
@@ -132,7 +132,7 @@ class BulkProductImporterDataGrid extends DataGrid
         $this->addMassAction([
             'type'   => 'delete',
             'label'  => 'Delete',
-            'url' => route('admin.bulk-upload.bulk-product-importer.massDelete'),
+            'url'    => route('admin.bulk-upload.bulk-product-importer.massDelete'),
             'method' => 'POST',
             'title'  => 'Delete'
         ]);

@@ -388,7 +388,6 @@ class UploadFileController extends Controller
 
     public function deleteCSV()
     {
-
         $fileToDelete = 'error-csv-file/' . request('id') . '/' . request('name');
 
         if (Storage::delete($fileToDelete)) {

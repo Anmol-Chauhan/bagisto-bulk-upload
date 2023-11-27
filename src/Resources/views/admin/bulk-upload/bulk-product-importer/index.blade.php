@@ -1,5 +1,4 @@
 <x-admin::layouts>
-
     <x-slot:title>
         @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')
     </x-slot>
