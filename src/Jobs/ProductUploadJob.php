@@ -66,7 +66,7 @@ class ProductUploadJob implements ShouldQueue
             session()->put('isFileUploadComplete', true);
         }
 
-        if ($isError) {    
+        if ($isError) {
 
             Excel::store(new DataGridExport(collect($records)), 'error-csv-file/'.$this->dataFlowProfileRecord->profiler->id.'/'.Str::random(10).'.csv');
         }
