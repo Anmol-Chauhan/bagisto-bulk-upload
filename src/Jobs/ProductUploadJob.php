@@ -60,8 +60,9 @@ class ProductUploadJob implements ShouldQueue
                 }
             }
         }
+
         // After Uploded Product store success message in session
-        if ($this->countCSV == $count) {
+        if ($this->countCSV == $count) {            
             session()->put('message', "CSV Product Successfully Imported");
             session()->put('isFileUploadComplete', true);
         }

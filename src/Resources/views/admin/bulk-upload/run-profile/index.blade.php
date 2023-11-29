@@ -27,7 +27,7 @@
             <div class="run-profile">
                 <x-admin::form>
                     <x-admin::form.control-group class="w-full mb-[10px]">
-                        <x-admin::form.control-group.label class="required">
+                        <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')
                         </x-admin::form.control-group.label>
 
@@ -35,7 +35,7 @@
                             type="select"
                             name="attribute_family_id"
                             id="attribute_family_id"
-                            rules="required"
+                            v-model="attribute_family_id"
                             @change="getImporter"
                             :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
                         >
@@ -47,16 +47,10 @@
                                 @{{ family.name }}
                             </option>
                         </x-admin::form.control-group.control>
-
-                        <x-admin::form.control-group.error
-                            class="mt-3"
-                            control-name="attribute_family_id"
-                        >
-                        </x-admin::form.control-group.error>
                     </x-admin::form.control-group>
 
                     <x-admin::form.control-group class="w-full mb-[10px]">
-                        <x-admin::form.control-group.label class="required">
+                        <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')
                         </x-admin::form.control-group.label>
 
@@ -64,7 +58,6 @@
                             type="select"
                             name="bulk_product_importer_id"
                             id="bulk_product_importer_id"
-                            rules="required"
                             v-model="bulk_product_importer_id"
                             @change="setProductFiles"
                             :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
@@ -77,16 +70,10 @@
                                 @{{ importer.name }}
                             </option>
                         </x-admin::form.control-group.control>
-
-                        <x-admin::form.control-group.error
-                            class="mt-3"
-                            control-name="bulk_product_importer_id"
-                        >
-                        </x-admin::form.control-group.error>
                     </x-admin::form.control-group>
 
                     <x-admin::form.control-group class="w-full mb-[10px]">
-                        <x-admin::form.control-group.label class="required">
+                        <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.run-profile.select-file')
                         </x-admin::form.control-group.label>
 
@@ -94,7 +81,6 @@
                             type="select"
                             name="product_file"
                             id="product_file"
-                            rules="required"
                             v-model="product_file_id"
                             @change="setProductFiles"
                             :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
@@ -108,18 +94,11 @@
                                 (@{{ formatDateTime(file.created_at) }})
                             </option>
                         </x-admin::form.control-group.control>
-
-                        <x-admin::form.control-group.error
-                            class="mt-3"
-                            control-name="product_file"
-                        >
-                        </x-admin::form.control-group.error>
                     </x-admin::form.control-group>
-
+                    
                     <div class="control-group product-uploading-message">
                         <p v-if="running">Time Taken: @{{ formattedTime }}</p>
                     </div>
-
                     <div class="page-action" v-if="this.product_file_id != '' && this.product_file_id != 'Please Select'">
                         <div class="flex gap-x-[10px] items-center">
                             <span type="submit" @click="runProfiler" :class="{ disabled: isDisabled }" :disabled="isDisabled" class="primary-button">
@@ -134,22 +113,22 @@
                 </x-admin::form>
                 <br>
                 <div class="h-48 max-h-full">
-                    <ul class=" flex overflow-x-auto whitespace-nowrap p-4 list-disc">
-                        <li v-for="(item, index) in uploadedProductList" :key="index" class="list-disc">Uploaded product record:- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
+                    <p v-if="isProductUploaded" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.uploaded-product')</p><br>
+                    <ul class="flex overflow-x-auto whitespace-nowrap max-h-0">
+                        <li v-for="(item, index) in uploadedProductList" :key="index" class="list-disc"> Uploaded Product :- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
                     </ul>
                 </div>
                 <br>
                 <div>
+                    <p v-if="isProductError" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error-in-product')</p><br>
                     <ul class="flex overflow-x-auto whitespace-nowrap p-4">
-                        <li v-for="(item, index) in  notUploadedProductList" :key="index">Not uploaded product validation record:- @{{ item.error }}</li>
+                        <li v-for="(item, index) in  notUploadedProductList" :key="index">Not Uploaded Product :- @{{ item.error }}</li>
                     </ul>
                 </div>
             
                 <div class="flex justify-between items-center">
-                    <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p>
-
-                    <div class="" v-for="(item, index) in errorCsvFile" :key="index" >
-
+                    <p v-if="errorCsvFile.length" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p>
+                    <div v-for="(item, index) in errorCsvFile" :key="index" >
                         <table>
                             <tr>
                                 <th> Profiler Name:- @{{ profilerNames[index] }}</th>
@@ -198,17 +177,19 @@
                 data() {
                     return {
                         product_file: [],
-                        product_file_id: '',
+                        product_file_id: null,
                         product_importer: [],
-                        attribute_family_id: '',
-                        bulk_product_importer_id: '',
+                        attribute_family_id: null,
+                        bulk_product_importer_id: null,
                         uploadedProductList:[],
                         notUploadedProductList:[],
                         errorCsvFile: [],
-                        profilerNames: '',
-                        stopInterval:'',
+                        profilerNames: null,
+                        stopInterval: null,
                         status:false,
-                        startTime: 0,
+                        isProductUploaded: false,
+                        isProductError: false,
+                        startTime: 0,   
                         timer: {
                             seconds: 0,
                             minutes: 0,
@@ -219,8 +200,8 @@
                 },
 
                 mounted() {
-                    // this.stopTimer();
-                    // this.resetTimer();
+                    this.stopTimer();
+                    this.resetTimer();
                     this.loadStoredTimer();
                     this.getUploadedProductAndProductValidation(this.status = true);
                 },
@@ -243,17 +224,17 @@
 
                 methods: {
                     async getImporter() {
-                        
-                        if (event.target.value === '' || event.target.value === 'Please Select') {
+                        if (this.attribute_family_id === '' || this.attribute_family_id === 'Please Select') {
+                            
                             return; // Exit early if attribute_family_id is empty or 'Please Select'
                         }
 
                         try {
-                            console.log(event.target.value);
                             const uri = "{{ route('admin.bulk-upload.upload-file.get-importar') }}";
+                            
                             const response = await this.$axios.get(uri, {
                                 params: {
-                                    'attribute_family_id': event.target.value,
+                                    'attribute_family_id': this.attribute_family_id,
                                 }
                             });
 
@@ -265,28 +246,32 @@
 
                     setProductFiles() {
                         if (this.bulk_product_importer_id === '' || this.bulk_product_importer_id === 'Please Select') {
+                            
                             return; // Exit early if bulk_product_importer_id is empty or 'Please Select'
                         }
-
+                        
                         const selectedProfile = this.product_importer.find(obj => obj.id === this.bulk_product_importer_id);
-
+                        
                         if (selectedProfile) {
                             // If an item with the specified id is found, set this.product_file to its import_product property
                             this.product_file = selectedProfile.import_product;
                         }
+                        
                     },
 
                     async deleteFile() {
                         if (this.product_file_id === '' || this.product_file_id === 'Please Select') {
+                            
                             return; // Exit early if product_file_id is empty or 'Please Select'
                         }
                         
                         let id = this.product_file_id;
 
-                        // this.product_file_id = '';
+                        this.product_file_id = '';
 
                         try {
                             const uri = "{{ route('admin.bulk-upload.upload-file.delete') }}";
+                            
                             const response = await this.$axios.post(uri, {
                                 bulk_product_importer_id: this.bulk_product_importer_id,
                                 product_file_id: id,
@@ -309,8 +294,10 @@
                         this.getUploadedProductAndProductValidation(this.status = true);
 
                         this.startTimer();
-
+                        
+                        this.isProductUploaded = true;
                         const id = this.product_file_id
+                        
                         this.product_file_id = '';
                     
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.read-csv') }}";
@@ -319,6 +306,7 @@
                             product_file_id: id,
                             bulk_product_importer_id: this.bulk_product_importer_id
                         })
+
                         .then((result) => {
                             const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.read-csv') }}";
 
@@ -340,29 +328,31 @@
                             }
                             
                         })
-                        .catch(function (error) {
+
+                        .catch((error) =>{
                         })
-                        .finally(function () {
+
+                        .finally(() => {
                             this.getErrorCsvFile();
                         });
                     },
 
                     getErrorCsvFile() {
+                        
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.download-csv') }}"
                         
                         this.$axios.get(uri)
                             .then((result) => {
-                                
                                 this.errorCsvFile = result.data.resultArray;
                                 this.profilerNames = result.data.profilerNames;
                             })
+
                             .catch(function (error) {
                                 console.log(error);
                             });
                     },
 
                     deleteCSV(id, name) {
-                        console.log(name,id)
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.delete-csv-file') }}"
 
                         this.$axios.post(uri, {id: id, name:name})
@@ -377,6 +367,7 @@
 
                                 this.getErrorCsvFile();
                             })
+
                             .catch(function (error) {
                                 console.log(error);
                             });
@@ -390,6 +381,9 @@
                         })
                             .then((result) => {
                                 if (result.data) {
+                                    this.isProductUploaded = true;
+                                    this.isProductError = true;
+
                                     this.uploadedProductList = result.data.message.uploadedProduct;
                                     this.notUploadedProductList = result.data.message.notUploadedProduct;
         
@@ -423,35 +417,41 @@
                                     }, 3000);
                                 }
                             })
+                            
                             .catch(function (error) {
                                 console.log(error);
                             });
                     },
 
                     startTimer() {
-                        if (!this.running) {
+
+                        if (! this.running) {
                             this.startTime = new Date().getTime() - (this.timer.seconds * 1000);
                             this.timer.interval = setInterval(this.updateTimer, 1000); // Update every second
                             this.running = true;
                             this.storeTimerState();
                         }
                     },
+
                     resetTimer() {
                         this.timer.seconds = 0;
                         this.startTime = new Date().getTime();
                         this.storeTimerState();
                     },
+
                     updateTimer() {
                         let constcurrentTime = new Date().getTime();
                         let constelapsedTime = Math.floor((constcurrentTime - this.startTime) / 1000);
                         this.timer.seconds = constelapsedTime;
                         this.storeTimerState();
                     },
+
                     stopTimer() {
                         clearInterval(this.timer.interval);
                         // this.running = false;
                         // this.storeTimerState();
                     },
+
                     storeTimerState() {
                         localStorage.setItem('timerState', JSON.stringify({
                             running: this.running,
@@ -459,11 +459,13 @@
                             seconds: this.timer.seconds,
                         }));
                     },
+
                     loadStoredTimer() {
                         let conststoredState = localStorage.getItem('timerState');
                         
                         if (conststoredState) {
                             const { running, startTime, seconds } = JSON.parse(conststoredState);
+                           
                             this.running = running;
                             this.startTime = startTime;
                             this.timer.seconds = seconds;

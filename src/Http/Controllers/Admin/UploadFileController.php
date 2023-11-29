@@ -82,10 +82,13 @@ class UploadFileController extends Controller
      */
     public function storeProductsFile()
     {
-        $request = request();
-        $importerId = $request->bulk_product_importer_id;
 
+        $request = request();
+
+        $importerId = $request->bulk_product_importer_id;
+        
         $validExtensions = ['csv', 'xls', 'xlsx'];
+        
         $validImageExtensions = ['zip', 'rar'];
 
         // Validate the request
@@ -95,7 +98,7 @@ class UploadFileController extends Controller
             'attribute_family_id'      => 'required',
             'bulk_product_importer_id' => 'required',
         ]);
-
+        
         $importer = $this->bulkProductImporterRepository->find($importerId);
 
         if (empty($importer)) {
@@ -159,7 +162,7 @@ class UploadFileController extends Controller
         // Handle image uploads
         if ($request->hasFile('image_path')) {
             $uploadedImage = request()->file('image_path');
-
+            
             if (in_array($uploadedImage->getClientOriginalExtension(), $validImageExtensions)) {
                 $product['image_path'] = $uploadedImage->storeAs($fileStorePath . '/images', uniqid() . '.' . $uploadedImage->getClientOriginalExtension());
             } else {
@@ -168,20 +171,20 @@ class UploadFileController extends Controller
                 return back();
             }
         }
-
+        
         // Handle file uploads
         if ($request->hasFile('file_path')) {
             $uploadedFile = request()->file('file_path');
-
+            
             if (in_array($uploadedFile->getClientOriginalExtension(), $validExtensions)) {
                 $product['file_path'] = $uploadedFile->storeAs($fileStorePath . '/files', uniqid() . '.' . $uploadedFile->getClientOriginalExtension());
             } else {
                 session()->flash('error', trans('bulkupload::app.admin.bulk-upload.messages.file-format-error'));
-
+                
                 return back();
             }
         }
-
+        
         $this->importProductRepository->create($product);
 
         session()->flash('success', trans('bulkupload::app.admin.bulk-upload.messages.profile-saved'));
@@ -244,7 +247,7 @@ class UploadFileController extends Controller
         }
 
         $csvData = (new DataGridImport)->toArray($productFileRecord->file_path)[0];
-
+        
         // $productFileRecord->update(['status' => 0]);
 
         $countConfig = count(array_filter($csvData, function ($item) {
@@ -266,9 +269,9 @@ class UploadFileController extends Controller
         if (isset($productFileRecord->image_path) && !empty($productFileRecord->image_path)) {
             $imageZipName = $this->storeImageZip($productFileRecord);
         }
-
+        
         $chunks = array_chunk($csvData, 100);
-
+        
         $batch = Bus::batch([])->dispatch();
 
         $batch->add(new ProductUploadJob($imageZipName, $productFileRecord, $chunks, $countCSV));
@@ -307,7 +310,7 @@ class UploadFileController extends Controller
                 $imageZipName = pathinfo($filename);
 
                 // Ensure the extracted path exists.
-                if (!is_dir($extractedPath.$imageZipName['dirname'])) {
+                if (! is_dir($extractedPath.$imageZipName['dirname'])) {
                     mkdir($extractedPath.$imageZipName['dirname'], 0777, true);
                 }
             }
@@ -338,15 +341,15 @@ class UploadFileController extends Controller
     {
         
         $folderPath = public_path('storage/error-csv-file');
-        
+
         // Check if the folder exists
-        if (!File::exists($folderPath)) {
+        if (! File::exists($folderPath)) {
             // If it doesn't exist, create it
             File::makeDirectory($folderPath, 0755, true, true);
         }
 
         $uploadedFilesError = File::allFiles($folderPath);
-
+        
         $resultArray = collect($uploadedFilesError)
                 ->map(function ($file) {
                     return [
@@ -426,7 +429,7 @@ class UploadFileController extends Controller
         if (session()->has('notUploadedProduct')) {
             $data['notUploadedProduct'] = session()->get('notUploadedProduct');
         }
-
+        
         if (session()->has('uploadedProduct')) {
             $data['uploadedProduct'] = session()->get('uploadedProduct');
         }   

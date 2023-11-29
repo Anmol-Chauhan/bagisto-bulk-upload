@@ -4,10 +4,6 @@ namespace Webkul\Bulkupload\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
 
-/**
- * Import Products Reposotory
- *
- */
 class ImportProductRepository extends Repository
 {
     /**

@@ -5,10 +5,6 @@ namespace Webkul\Bulkupload\Repositories;
 use Illuminate\Support\Facades\Storage;
 use Webkul\Core\Eloquent\Repository;
 
-/**
- * Product Image Repository
- *
- */
 class ProductImageRepository extends Repository
 {
     /**

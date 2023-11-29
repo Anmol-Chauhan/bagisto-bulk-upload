@@ -68,8 +68,6 @@ class SimpleProductRepository extends BaseRepository
      */
     public function createProduct($imageZipName, $dataFlowProfileRecord, $csvData, $key)
     {
-        
-        
         try {
             //Validation
             $createValidation = $this->helperRepository->createProductValidation($csvData, $key);
@@ -84,7 +82,7 @@ class SimpleProductRepository extends BaseRepository
                 'type'                => $csvData['type'],
                 'attribute_family_id' => $dataFlowProfileRecord->profiler->attribute_family_id,
             ];
-
+            
             if ($csvData['type'] == 'configurable') {
                 $superAttributes['super_attributes'] = $csvData['super_attributes'];
                 
@@ -105,7 +103,7 @@ class SimpleProductRepository extends BaseRepository
                     'error' => ["Duplicate entry for sku {$product->sku}"],
                 ];
             }
-
+            
             // Create Product
             if (! $product) {
 
@@ -137,7 +135,7 @@ class SimpleProductRepository extends BaseRepository
 
             // Process categories
             $categories = $this->processProductCategories($csvData);
-
+            
             if (isset($categories[0]['error'])) {
                 $this->helperRepository->deleteProductIfNotValidated($product->id);
 
@@ -147,7 +145,6 @@ class SimpleProductRepository extends BaseRepository
             $data['categories'] = $categories;
             $data['locale'] = $dataFlowProfileRecord->profiler->locale_code;
             $data['channel'] = core()->getCurrentChannel()->code;
-
 
             // Process customer group pricing
             $this->processCustomerGroupPricing($csvData, $data, $product);
@@ -195,6 +192,7 @@ class SimpleProductRepository extends BaseRepository
 
             // Validate product data and handle errors
             $validationErrors = $this->validateProductData($data, $product);
+            
             if ($validationErrors) {
                 $this->helperRepository->deleteProductIfNotValidated($product->id);
 
@@ -224,12 +222,11 @@ class SimpleProductRepository extends BaseRepository
         $data = [];
         $attributeCode = [];
         $attributeValue = [];
-
         $attributes = $product->getTypeInstance()->getEditableAttributes()->toArray();
-
+        
         foreach ($attributes as $attribute) {
             $searchIndex = strtolower($attribute['code']);
-
+            
             $csvValue = $csvData[$searchIndex] ?? null;
 
             if (is_null($csvData)) {
@@ -237,7 +234,7 @@ class SimpleProductRepository extends BaseRepository
             }
 
             $attributeCode[] = $searchIndex;
-
+            
             switch ($attribute['type']) {
                 case "select":
                     $attributeOption = $this->attributeOptionRepository->findOneByField(['admin_name' => $csvValue]);
@@ -279,21 +276,21 @@ class SimpleProductRepository extends BaseRepository
     private function processProductInventory($csvData, &$data)
     {
         $inventoryCode = preg_split('/,\s*|,/', $csvData['inventory_sources']);
-
+        
         $inventoryId = $this->inventorySourceRepository->whereIn('code', $inventoryCode)->pluck('id')->toArray();
-
+        
         $inventoryData = preg_split('/,\s*|,/', $csvData['inventories']);
-
+        
         if (count($inventoryId) != count($inventoryData)) {
             $inventoryData = array_fill(0, count($inventoryId), 0);
         }
 
-        $data['inventories'] =  array_combine($inventoryId, $inventoryData);;
+        $data['inventories'] =  array_combine($inventoryId, $inventoryData);
     }
 
     // Process product categories and update $data array
     private function processProductCategories($csvData)
-    {
+    {   
         if (is_null($csvData['categories_slug']) || empty($csvData['categories_slug'])) {
             $categoryID = $this->categoryRepository->findBySlugOrFail('root')->id;
         } else {

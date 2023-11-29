@@ -83,7 +83,7 @@
                     enctype="multipart/form-data"
                 >
                     @csrf
-
+                
                     <x-admin::form.control-group class="w-full mb-[10px]">
                         <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.upload-files.is-downloadable')
@@ -94,8 +94,7 @@
                             name="is_downloadable"
                             id="is_downloadable"
                             @click="showOptions"
-                            v-model="isChecked" 
-                            disabled="isDisabled"
+                            v-model="isDownloadableChecked"
                         >
                         </x-admin::form.control-group.control>
                     </x-admin::form.control-group>
@@ -124,6 +123,7 @@
                             id="is_link_have_sample"
                             @click="showlinkSamples"
                             value="is_link_have_sample"
+                            v-model="isLinkSampleHaveChecked"
                             
                         >
                         </x-admin::form.control-group.control>
@@ -152,6 +152,7 @@
                             name="is_sample"
                             id="is_sample"
                             @click="showSamples"
+                            v-model="isSampleAvailableChecked"
                         >
                         </x-admin::form.control-group.control>
                     </x-admin::form.control-group>
@@ -273,52 +274,45 @@
 
                     data() {
                         return {
-                            key: null,
                             dataFlowProfiles: [],
+                            attribute_family_id: null,
                             isLinkSample: false,
                             isSample: false,
                             linkFiles: false,
                             linkSampleFiles: false,
                             sampleFile: false,
                             is_downloadable:false,
-                            isChecked:false,
-                            isDisabled:false,
-                            attribute_family_id: '',
+                            isDownloadableChecked: false,
+                            isLinkSampleHaveChecked: false,
+                            isSampleAvailableChecked: false,
                         }
                     },
-                    mounted() {
-                        
-                    },
-
                     methods:{
                         showOptions() {
-                            console.log(this);  
+                            this.isDownloadableChecked = ! this.isDownloadableChecked;
                             this.isLinkSample = ! this.isLinkSample;
                             this.isSample = ! this.isSample;
                             this.linkFiles = ! this.linkFiles;
-
                             this.linkSampleFiles = false;
                             this.sampleFile = false;
                         },
-
                         showlinkSamples() {
+                            this.isLinkSampleHaveChecked = !  this.isLinkSampleHaveChecked;
                             this.linkSampleFiles = ! this.linkSampleFiles;
                         },
-
                         showSamples() {
+                            this.isSampleAvailableChecked = ! this.isSampleAvailableChecked;
                             this.sampleFile = ! this.sampleFile;
                         },
-                        onChange() {
-                            console.log(event.target.value);                           
+                        onChange() {           
                             var uri = "{{ route('admin.bulk-upload.upload-file.get-all-profile') }}"
                             this.$axios.get(uri, {
                                 params: {
-                                    'attribute_family_id': event.target.value,
+                                    'attribute_family_id': this.attribute_family_id,
                                 }
                             })
 
                             .then((response) => {
-                                console.log(response.data);
                                 this.dataFlowProfiles = response.data.dataFlowProfiles;
                             })
 

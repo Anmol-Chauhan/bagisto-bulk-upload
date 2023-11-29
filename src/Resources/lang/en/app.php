@@ -40,6 +40,7 @@ return [
                 'select-file'       => 'Select File',
                 'please-select'     => 'Please Select',
                 'error-in-product'  => 'Error while product uploading',
+                'uploaded-product'  => 'Products which are uploaded',
                 'profile-execution' => 'Starting profile execution, please wait...',
                 'products-uploaded' => 'Products Uploaded',
             ],

@@ -20,7 +20,7 @@
                                 <button 
                                     type="button"
                                     class="primary-button"
-                                    @click="id=0; $refs.groupUpdateOrCreateModal.open()"
+                                    @click="id=0; $refs.bulkProductUpdateOrCreateModal.open()"
                                 >
                                     @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.add-profile')
                                 </button>
@@ -177,7 +177,7 @@
                         ref="groupCreateForm"
                         >
                         <!-- Create Group Modal -->
-                        <x-admin::modal ref="groupUpdateOrCreateModal">          
+                        <x-admin::modal ref="bulkProductUpdateOrCreateModal">          
                             <x-slot:header>
                                 <!-- Modal Header -->
                                 <p class="text-[18px] text-gray-800 dark:text-white font-bold">
@@ -235,13 +235,13 @@
                                             <option value="">
                                                 @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                                             </option>
+
                                             @foreach ($families as $family)
-                                                <option value="{{ $family->id }}">{{ $family->name }}</option>
+                                                <option :value="{{ $family->id }}">{{ $family->name }}</option>
                                             @endforeach
                                         </x-admin::form.control-group.control>
 
                                         <x-admin::form.control-group.error
-                                            class="mt-3"
                                             control-name="attribute_family_id"
                                         >
                                         </x-admin::form.control-group.error>
@@ -262,6 +262,7 @@
                                             <option value="">
                                                 @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                                             </option>
+
                                             @foreach (core()->getAllLocales() as $localeModel)
                                                 <option value="{{ $localeModel->code }}">
                                                     {{ $localeModel->name }}
@@ -270,7 +271,6 @@
                                         </x-admin::form.control-group.control>
 
                                         <x-admin::form.control-group.error
-                                            class="mt-3"
                                             control-name="locale_code"
                                         >
                                         </x-admin::form.control-group.error>
@@ -303,6 +303,13 @@
                 data() {
                     return {
                         id: 0,
+                        data: {
+                            id: null,
+                            name: null,
+                            attribute_family_id: null,
+                            locale_code: null,
+                            created_at: null,
+                        }
                     }
                 },
 
@@ -316,7 +323,7 @@
 
                         this.$axios.post(params.id ? "{{ route('admin.bulk-upload.bulk-product-importer.update') }}" : "{{ route('admin.bulk-upload.bulk-product-importer.add') }}", formData)
                             .then((response) => {
-                                this.$refs.groupUpdateOrCreateModal.close();
+                                this.$refs.bulkProductUpdateOrCreateModal.close();
 
                                 this.$refs.datagrid.get();
 
@@ -332,10 +339,15 @@
                     },
 
                     editModal(value) {
-                        console.log(value);
-                        this.$refs.groupUpdateOrCreateModal.toggle();
-
-                        this.$refs.modalForm.setValues(value);
+                        this.$refs.bulkProductUpdateOrCreateModal.toggle();
+                        
+                        this.data.id = value.id;
+                        this.data.name = value.profile_name;
+                        this.data.locale_code = value.locale_code;
+                        this.data.attribute_family_id = value.name;
+                        this.data.created_at = value.created_at;                        
+                        
+                        this.$refs.modalForm.setValues(this.data);
                     },
                 }
             })
