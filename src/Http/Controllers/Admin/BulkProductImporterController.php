@@ -91,6 +91,7 @@ class BulkProductImporterController extends Controller
     public function update()
     {
         $id = request()->input('id');
+        dd($id,request()->all());
 
         $this->validate(request(), [
             'name'                => ['required', 'unique:bulk_product_importers,name,' . $id],
@@ -144,6 +145,22 @@ class BulkProductImporterController extends Controller
 
         return new JsonResponse([
             'message' => trans('bulkupload::app.admin.bulk-upload.messages.all-profile-deleted'),
+        ]);
+    }
+
+    /**
+     * Get Attribute By Importer ID
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAttributeByImporterID()
+    {
+        $profiles = $this->bulkProductImporterRepository->findOrFail(request()->id);
+
+        $family = $this->attributeFamilyRepository->find($profiles['attribute_family_id']);
+        
+        return new JsonResponse([
+            'family' => $family
         ]);
     }
 }

@@ -165,7 +165,7 @@
                 </x-admin::datagrid>
 
                 {!! view_render_event('bagisto.admin.bulk-upload.bulk-product-importer.index.list.after') !!}
-
+                
                 <!-- Modal Form -->
                 <x-admin::form
                     v-slot="{ meta, errors, handleSubmit }"
@@ -174,7 +174,7 @@
                 >
                     <form
                         @submit="handleSubmit($event, updateOrCreate)"
-                        ref="groupCreateForm"
+                        ref="bulkProductCreateForm"
                         >
                         <!-- Create Group Modal -->
                         <x-admin::modal ref="bulkProductUpdateOrCreateModal">          
@@ -219,8 +219,8 @@
                                         >
                                         </x-admin::form.control-group.error>
                                     </x-admin::form.control-group>
-
-                                    <x-admin::form.control-group class="w-full mb-[10px]">
+                                    
+                                    <x-admin::form.control-group class="w-full mb-[10px]" >
                                         <x-admin::form.control-group.label class="required">
                                             @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')
                                         </x-admin::form.control-group.label>
@@ -230,6 +230,7 @@
                                             name="attribute_family_id"
                                             id="attribute_family_id"
                                             rules="required"
+                                            :value="$family->id ?? ''"                                            
                                             :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
                                         >
                                             <option value="">
@@ -237,8 +238,16 @@
                                             </option>
 
                                             @foreach ($families as $family)
-                                                <option :value="{{ $family->id }}">{{ $family->name }}</option>
+                                                <option value="{{ $family->id }}" {{ old('attribute_family_id') == $family->id ? 'selected' : '' }}>
+                                                {{ $family->name }}
+                                                </option>
                                             @endforeach
+                                        </x-admin::form.control-group.control>
+
+                                        <x-admin::form.control-group.control
+                                            type="hidden"
+                                            name="attribute_id"
+                                        >
                                         </x-admin::form.control-group.control>
 
                                         <x-admin::form.control-group.error
@@ -246,6 +255,7 @@
                                         >
                                         </x-admin::form.control-group.error>
                                     </x-admin::form.control-group>
+                                    
 
                                     <x-admin::form.control-group class="w-full mb-[10px]">
                                         <x-admin::form.control-group.label class="required">
@@ -309,13 +319,16 @@
                             attribute_family_id: null,
                             locale_code: null,
                             created_at: null,
-                        }
+                            attribute_id: null,
+                        },
+                        family:[],
+                        
                     }
                 },
 
                 methods: {
                     updateOrCreate(params, { resetForm, setErrors  }) {
-                        let formData = new FormData(this.$refs.groupCreateForm);
+                        let formData = new FormData(this.$refs.bulkProductCreateForm);
 
                         if (params.id) {
                             formData.append('_method', 'put');
@@ -345,8 +358,23 @@
                         this.data.name = value.profile_name;
                         this.data.locale_code = value.locale_code;
                         this.data.attribute_family_id = value.name;
-                        this.data.created_at = value.created_at;                        
+                        this.data.created_at = value.created_at;  
+                                      
                         
+                        const uri = "{{ route('admin.bulk-upload.bulk-product-importer.get-attribute') }}"
+                        
+                        this.$axios.post(uri,{
+                            id:value.id
+                        })
+
+                        .then((result) => {
+                            this.family = result.data.family;
+                        })
+                        
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+
                         this.$refs.modalForm.setValues(this.data);
                     },
                 }

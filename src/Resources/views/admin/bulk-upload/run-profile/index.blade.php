@@ -112,23 +112,29 @@
                     </div>
                 </x-admin::form>
                 <br>
-                <div class="h-48 max-h-full">
+
+                <!-- Uploaded product records -->
+                <div>
                     <p v-if="isProductUploaded" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.uploaded-product')</p><br>
-                    <ul class="flex overflow-x-auto whitespace-nowrap max-h-0">
-                        <li v-for="(item, index) in uploadedProductList" :key="index" class="list-disc"> Uploaded Product :- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
+                    <ul class="overflow-y-auto whitespace-nowrap p-4" style="height: 150px;">
+                        <li v-for="(item, index) in uploadedProductList" :key="index" class="dark:text-white"> Uploaded Product :- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
                     </ul>
                 </div>
                 <br>
+
+                <!-- Not Uploaded Product Records Due to Validation error -->
                 <div>
                     <p v-if="isProductError" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error-in-product')</p><br>
-                    <ul class="flex overflow-x-auto whitespace-nowrap p-4">
-                        <li v-for="(item, index) in  notUploadedProductList" :key="index">Not Uploaded Product :- @{{ item.error }}</li>
+                    <ul class="overflow-y-auto whitespace-nowrap p-4" style="height: 150px;">
+                        <li v-for="(item, index) in  notUploadedProductList" :key="index" class="dark:text-white">Not Uploaded Product :- @{{ item.error }}</li>
                     </ul>
                 </div>
-            
+                <br>
+
+                <!-- After Product Uploaded Error Records -->
                 <div class="flex justify-between items-center">
-                    <p v-if="errorCsvFile.length" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p>
                     <div v-for="(item, index) in errorCsvFile" :key="index" >
+                        <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p><br>
                         <table>
                             <tr>
                                 <th> Profiler Name:- @{{ profilerNames[index] }}</th>
@@ -142,7 +148,7 @@
 
                             <tr v-for="(record) in item">
                                 <td>
-                                    <a :href="record.link">Download CSV</a>
+                                    <a :href="record.link" class="text-[#161B9D] dark:text-white">Download CSV</a>
                                 </td>
                                 <td>
                                     <span>@{{ record.time }}</span>
@@ -177,7 +183,7 @@
                 data() {
                     return {
                         product_file: [],
-                        product_file_id: null,
+                        product_file_id: '',
                         product_importer: [],
                         attribute_family_id: null,
                         bulk_product_importer_id: null,
@@ -200,8 +206,7 @@
                 },
 
                 mounted() {
-                    this.stopTimer();
-                    this.resetTimer();
+                    // this.resetTimer();
                     this.loadStoredTimer();
                     this.getUploadedProductAndProductValidation(this.status = true);
                 },
@@ -224,6 +229,7 @@
 
                 methods: {
                     async getImporter() {
+                        
                         if (this.attribute_family_id === '' || this.attribute_family_id === 'Please Select') {
                             
                             return; // Exit early if attribute_family_id is empty or 'Please Select'
@@ -245,6 +251,7 @@
                     },
 
                     setProductFiles() {
+
                         if (this.bulk_product_importer_id === '' || this.bulk_product_importer_id === 'Please Select') {
                             
                             return; // Exit early if bulk_product_importer_id is empty or 'Please Select'
@@ -260,6 +267,7 @@
                     },
 
                     async deleteFile() {
+
                         if (this.product_file_id === '' || this.product_file_id === 'Please Select') {
                             
                             return; // Exit early if product_file_id is empty or 'Please Select'
@@ -290,18 +298,16 @@
                     },
 
                     runProfiler() {
-                        
-                        this.getUploadedProductAndProductValidation(this.status = true);
-
                         this.startTimer();
                         
                         this.isProductUploaded = true;
                         const id = this.product_file_id
                         
                         this.product_file_id = '';
-                    
+                        
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.read-csv') }}";
-
+                        
+                        this.getUploadedProductAndProductValidation(this.status = true);
                         this.$axios.post(uri, {
                             product_file_id: id,
                             bulk_product_importer_id: this.bulk_product_importer_id
@@ -310,12 +316,7 @@
                         .then((result) => {
                             const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.read-csv') }}";
 
-                            window.flashMessages = [{
-                                'type': 'alert-success',
-                                'message': result.data.message
-                            }];
-                            
-                            this.$root.addFlashMessages();
+                            this.$emitter.emit('add-flash', { type: 'success', message: result.data.message });
                             
                             if (result.data.success == true) {
                                 this.getUploadedProductAndProductValidation(this.status = false);
@@ -338,7 +339,6 @@
                     },
 
                     getErrorCsvFile() {
-                        
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.download-csv') }}"
                         
                         this.$axios.get(uri)
@@ -353,18 +353,12 @@
                     },
 
                     deleteCSV(id, name) {
+                        
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.delete-csv-file') }}"
 
                         this.$axios.post(uri, {id: id, name:name})
                             .then((result) => {
-
-                                window.flashMessages = [{
-                                    'type': 'alert-success',
-                                    'message': result.data.message
-                                }];
-
-                                this.$root.addFlashMessages();
-
+                                this.$emitter.emit('add-flash', { type: 'success', message: result.data.message });
                                 this.getErrorCsvFile();
                             })
 
@@ -372,59 +366,55 @@
                                 console.log(error);
                             });
                     },
-
+                    // Get record uploaded and not uploaded product due to validation error
                     getUploadedProductAndProductValidation() {
-                        const uri = "{{ route('admin.bulk-upload.upload-file.uploaded-product.or-not-uploaded-product') }}"
+                        const uri = "{{ route('admin.bulk-upload.upload-file.get-uploaded-and-not-uploaded-product') }}"
                         var self = this;
+                        
                         this.$axios.post(uri,{
                             status:this.status
                         })
-                            .then((result) => {
-                                if (result.data) {
-                                    this.isProductUploaded = true;
-                                    this.isProductError = true;
 
-                                    this.uploadedProductList = result.data.message.uploadedProduct;
-                                    this.notUploadedProductList = result.data.message.notUploadedProduct;
-        
-                                    if (result.data.isFileUploadComplete) {
-                                        this.stopTimer();
-                                    }
-                                    
-                                    if (result.data.success) {
-                                        window.flashMessages = [{
-                                            'type': 'alert-success',
-                                            'message': result.data.success
-                                        }];
-
-                                        this.$root.addFlashMessages();
-                                        
-                                        this.stopTimer();
-
-                                        // Remove a specific item from localStorage
-                                        localStorage.removeItem('timerState');
-
-                                        // Remove a specific item from session storage
-                                        @php
-                                            Illuminate\Support\Facades\Session::forget('message');
-                                        @endphp                                    
-                                    }
-                                }
-                                
-                                if (result.data.status == true) {
-                                    setTimeout(function() {
-                                        self.getUploadedProductAndProductValidation(this.status = true);
-                                    }, 3000);
-                                }
-                            })
+                        .then((result) => {
+                            this.isProductUploaded = true;
+                            this.isProductError = true;
                             
-                            .catch(function (error) {
-                                console.log(error);
-                            });
+                            if (result.data.message.length == 0) {
+                                this.isProductUploaded = false;
+                                this.isProductError = false;
+                            }
+
+                            this.uploadedProductList = result.data.message.uploadedProduct;
+                            this.notUploadedProductList = result.data.message.notUploadedProduct;
+
+                            if (result.data.success) {
+
+                                this.$emitter.emit('add-flash', { type: 'success', message: result.data.message.completionMessage });
+                                
+                                this.stopTimer();
+
+                                // Remove a specific item from localStorage
+                                localStorage.removeItem('timerState');
+
+                                // Remove a specific item from session storage
+                                @php
+                                    Illuminate\Support\Facades\Session::forget('completionMessage');
+                                @endphp
+                            }
+                            
+                            if (result.data.status == true) {
+                                setTimeout(function() {
+                                    self.getUploadedProductAndProductValidation(this.status = true);
+                                }, 3000);
+                            }
+                        })
+                        
+                        .catch(function (error) {
+                            console.log(error);
+                        });
                     },
 
                     startTimer() {
-
                         if (! this.running) {
                             this.startTime = new Date().getTime() - (this.timer.seconds * 1000);
                             this.timer.interval = setInterval(this.updateTimer, 1000); // Update every second
@@ -448,8 +438,8 @@
 
                     stopTimer() {
                         clearInterval(this.timer.interval);
-                        // this.running = false;
-                        // this.storeTimerState();
+                        this.running = false;
+                        this.storeTimerState();
                     },
 
                     storeTimerState() {

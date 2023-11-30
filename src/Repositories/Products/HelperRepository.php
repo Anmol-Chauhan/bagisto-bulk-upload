@@ -4,6 +4,8 @@ namespace Webkul\Bulkupload\Repositories\Products;
 
 use Webkul\Core\Eloquent\Repository;
 use Illuminate\Support\Facades\Validator;
+use Webkul\Core\Rules\Decimal;
+use Webkul\Core\Rules\Slug;
 use Webkul\Product\Models\ProductAttributeValue;
 use Webkul\Admin\Validations\ProductCategoryUniqueSlug;
 use Webkul\Product\Repositories\{ProductRepository, ProductFlatRepository, ProductAttributeValueRepository};
@@ -48,11 +50,11 @@ class HelperRepository extends Repository
     {
         // Initialize rules with type validation rules
         $this->rules = array_merge($product->getTypeInstance()->getTypeValidationRules(), [
-            'sku'                => ['required', 'unique:products,sku,' . $product->id, new \Webkul\Core\Contracts\Validations\Slug],
+            'sku'                => ['required', 'unique:products,sku,' . $product->id, new Slug],
             'url_key'            => ['required', new ProductCategoryUniqueSlug('products', $product->id)],
             'special_price_from' => 'nullable|date',
             'special_price_to'   => 'nullable|date|after_or_equal:special_price_from',
-            'special_price'      => ['nullable', new \Webkul\Core\Contracts\Validations\Decimal, 'lt:price'],
+            'special_price'      => ['nullable', new Decimal, 'lt:price'],
         ]);
 
         foreach ($product->getEditableAttributes() as $attribute) {
@@ -65,12 +67,12 @@ class HelperRepository extends Repository
 
             if ($attribute->type == 'text' && $attribute->validation) {
                 // Add custom validation rules if applicable
-                $validations[] = $attribute->validation == 'decimal' ? new \Webkul\Core\Contracts\Validations\Decimal : $attribute->validation;
+                $validations[] = $attribute->validation == 'decimal' ? new Decimal : $attribute->validation;
             }
 
             if ($attribute->type == 'price') {
                 // Add decimal validation for price attributes
-                $validations[] = new \Webkul\Core\Contracts\Validations\Decimal;
+                $validations[] = new Decimal;
             }
 
             if ($attribute->is_unique) {
@@ -86,7 +88,7 @@ class HelperRepository extends Repository
             // Assign validations to the rules array
             $this->rules[$attribute->code] = $validations;
         }
-
+        
         return $this->rules;
     }
 

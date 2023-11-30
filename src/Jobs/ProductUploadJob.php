@@ -36,7 +36,7 @@ class ProductUploadJob implements ShouldQueue
         session()->forget('notUploadedProduct');
         session()->forget('uploadedProduct');
         session()->forget('isFileUploadComplete');
-        session()->forget('message');
+        session()->forget('completionMessage');
 
         $simpleProductRepository = app('Webkul\Bulkupload\Repositories\Products\SimpleProductRepository');
         $errorArray = [];
@@ -63,7 +63,7 @@ class ProductUploadJob implements ShouldQueue
 
         // After Uploded Product store success message in session
         if ($this->countCSV == $count) {            
-            session()->put('message', "CSV Product Successfully Imported");
+            session()->put('completionMessage', "CSV Product Successfully Imported");
             session()->put('isFileUploadComplete', true);
         }
 

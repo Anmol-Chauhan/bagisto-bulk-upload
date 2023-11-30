@@ -34,6 +34,10 @@ Route::middleware(['web', 'admin'])
                 // Mass Destroy
                 Route::post('/massdestroy', [BulkProductImporterController::class, 'massDestroy'])
                     ->name('admin.bulk-upload.bulk-product-importer.massDelete');
+
+                // Get Attribute Family by Importer ID
+                Route::post('/get-attribute',[BulkProductImporterController::class, 'getAttributeByImporterID'])
+                    ->name('admin.bulk-upload.bulk-product-importer.get-attribute');
             });
 
             Route::prefix('upload-file')->group(function () {
@@ -64,18 +68,22 @@ Route::middleware(['web', 'admin'])
 
                 Route::post('/delete-file', [UploadFileController::class, 'deleteProductFile'])
                     ->name('admin.bulk-upload.upload-file.delete');
-
+                
+                // Read csv file and exicute the uploading product  
                 Route::post('/read-csv', [UploadFileController::class, 'readCSVData'])
                     ->name('admin.bulk-upload.upload-file.run-profile.read-csv');
 
+                // get error after product uploading 
                 Route::get('/download-csv', [UploadFileController::class, 'downloadCsv'])
                     ->name('admin.bulk-upload.upload-file.run-profile.download-csv');
 
+                // Delete the csv error file
                 Route::post('/delete-csv', [UploadFileController::class, 'deleteCSV'])
                     ->name('admin.bulk-upload.upload-file.run-profile.delete-csv-file');
 
+                // Get uploaded and not uploaded product records
                 Route::post('/get-uploaded-product', [UploadFileController::class, 'getUploadedProductOrNotUploadedProduct'])
-                    ->name('admin.bulk-upload.upload-file.uploaded-product.or-not-uploaded-product');
+                    ->name('admin.bulk-upload.upload-file.get-uploaded-and-not-uploaded-product');
 
                 Route::get('/get-profiler', [UploadFileController::class, 'getProfiler'])
                     ->name('admin.bulk-upload.upload-file.run-profile.get-profiler-name');

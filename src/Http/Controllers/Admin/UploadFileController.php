@@ -118,6 +118,8 @@ class UploadFileController extends Controller
             'file_name'                => $request->file('file_path')->getClientOriginalName()
         ];
 
+        
+
         $fileStorePath = 'imported-products/admin';
 
         // Handle link files
@@ -234,6 +236,12 @@ class UploadFileController extends Controller
 
     public function readCSVData()
     {
+        // flush session when the new product uploading
+        session()->forget('notUploadedProduct');
+        session()->forget('uploadedProduct');
+        session()->forget('isFileUploadComplete');
+        session()->forget('completionMessage');
+
         $productFileRecord = $this->importProductRepository->where([
             'bulk_product_importer_id' => request()->bulk_product_importer_id,
             'id' => request()->product_file_id,
@@ -392,7 +400,7 @@ class UploadFileController extends Controller
     public function deleteCSV()
     {
         $fileToDelete = 'error-csv-file/' . request('id') . '/' . request('name');
-
+            
         if (Storage::delete($fileToDelete)) {
             return response()->json(['message' => 'File deleted successfully']);
         }
@@ -434,21 +442,20 @@ class UploadFileController extends Controller
             $data['uploadedProduct'] = session()->get('uploadedProduct');
         }   
         
-
         if (session()->has('isFileUploadComplete')) {
             $isFileUploadComplete = session()->get('isFileUploadComplete');
             $status = false;
         }
         
-        if (session()->has('message')) {
-            $message = session()->get('message');
-            $status = false;
+        if (session()->has('completionMessage')) {
+            $message = true;
+            $data['completionMessage'] = session()->get('completionMessage');
         }
         
         if (empty($data)) {
             $status = false;
         }
-
+        
         return response()->json(['message' => $data ,'status' => $status,'success'=>$message, 'isFileUploadComplete' => $isFileUploadComplete], 200);
     }
 }
