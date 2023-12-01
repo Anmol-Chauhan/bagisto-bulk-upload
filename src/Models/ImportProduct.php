@@ -11,7 +11,12 @@ class ImportProduct extends Model implements ImportProductContract
 
     protected $guarded = [];
 
-    public function profiler()
+    /**
+     * Get the profiler files.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profiler(): BelongsTo
     {
         return $this->belongsTo(BulkProductImporter::class, 'bulk_product_importer_id', 'id');
     }

@@ -328,10 +328,8 @@
                             }
                             
                         })
-
                         .catch((error) =>{
                         })
-
                         .finally(() => {
                             this.getErrorCsvFile();
                         });
@@ -345,7 +343,6 @@
                                 this.errorCsvFile = result.data.resultArray;
                                 this.profilerNames = result.data.profilerNames;
                             })
-
                             .catch(function (error) {
                                 console.log(error);
                             });
@@ -360,7 +357,6 @@
                                 this.$emitter.emit('add-flash', { type: 'success', message: result.data.message });
                                 this.getErrorCsvFile();
                             })
-
                             .catch(function (error) {
                                 console.log(error);
                             });
@@ -408,7 +404,6 @@
                                 }, 3000);
                             }
                         })
-                        
                         .catch(function (error) {
                             console.log(error);
                         });

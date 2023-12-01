@@ -114,8 +114,8 @@ class HelperRepository extends Repository
     {   
         try {
             $validateProduct = Validator::make($record, [
-                'type'                  => 'required',
-                'sku'                   => 'required'
+                'type' => 'required',
+                'sku'  => 'required'
             ]);
 
             if ($validateProduct->fails()) {

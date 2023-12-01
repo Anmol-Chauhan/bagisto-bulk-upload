@@ -60,6 +60,7 @@ Route::middleware(['web', 'admin'])
             });
 
             Route::prefix('import-product-file')->group(function () {
+                
                 // Get attribut family when uploading bulk-product
                 Route::get('/', [UploadFileController::class, 'getFamilyAttributesToUploadFile'])
                     ->name('admin.bulk-upload.import-file.run-profile.index');

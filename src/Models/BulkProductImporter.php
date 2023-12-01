@@ -24,6 +24,8 @@ class BulkProductImporter extends Model implements BulkProductImporterContract
 
     /**
      * Get the product files.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function import_product(): HasMany
     {

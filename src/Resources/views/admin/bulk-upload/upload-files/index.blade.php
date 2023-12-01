@@ -306,16 +306,15 @@
                         },
                         onChange() {           
                             var uri = "{{ route('admin.bulk-upload.upload-file.get-all-profile') }}"
+                            
                             this.$axios.get(uri, {
                                 params: {
                                     'attribute_family_id': this.attribute_family_id,
                                 }
                             })
-
                             .then((response) => {
                                 this.dataFlowProfiles = response.data.dataFlowProfiles;
                             })
-
                             .catch(error => {
                             });
                         }

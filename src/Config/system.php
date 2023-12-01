@@ -4,7 +4,6 @@ return [
     /**
      * System Configuration.
      */
-    
     [
         'key'  => 'bulkupload',
         'name' => 'bulkupload::app.admin.system.bulkupload',

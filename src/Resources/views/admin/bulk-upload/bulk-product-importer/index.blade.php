@@ -370,11 +370,9 @@
                         this.$axios.post(uri,{
                             id:value.id
                         })
-
                         .then((result) => {
                             this.family = result.data.family;
                         })
-                        
                         .catch(function (error) {
                             console.log(error);
                         });

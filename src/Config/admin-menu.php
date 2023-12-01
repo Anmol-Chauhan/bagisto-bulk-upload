@@ -4,7 +4,6 @@ return [
     /**
      * Admin menu configuration.
      */
-
     [
         'key'        => 'catalog.bulkupload',
         'name'       => 'bulkupload::app.admin.bulk-upload.manage-bulk-upload',
