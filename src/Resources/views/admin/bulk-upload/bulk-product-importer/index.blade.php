@@ -224,30 +224,33 @@
                                         <x-admin::form.control-group.label class="required">
                                             @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')
                                         </x-admin::form.control-group.label>
+                                        
+                                        <input type="hidden" :value="family.id" v-if="id" name="family_id">
 
                                         <x-admin::form.control-group.control
                                             type="select"
                                             name="attribute_family_id"
                                             id="attribute_family_id"
                                             rules="required"
-                                            :value="$family->id ?? ''"                                            
+                                                                                   
                                             :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')"
                                         >
                                             <option value="">
                                                 @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                                             </option>
 
+                                            <option v-if="id">@{{ family.name }}</option>
+                                            
                                             @foreach ($families as $family)
-                                                <option value="{{ $family->id }}" {{ old('attribute_family_id') == $family->id ? 'selected' : '' }}>
-                                                {{ $family->name }}
+                                                <option :value="{{ $family->id }}" v-if="id && family.id != {{ $family->id }}">
+                                                        {{ $family->name }}
                                                 </option>
-                                            @endforeach
-                                        </x-admin::form.control-group.control>
 
-                                        <x-admin::form.control-group.control
-                                            type="hidden"
-                                            name="attribute_id"
-                                        >
+                                                <option class="aaa" value="{{ $family->id }}" v-if="! id">
+                                                        {{ $family->name }}
+                                                </option>
+                                            
+                                            @endforeach
                                         </x-admin::form.control-group.control>
 
                                         <x-admin::form.control-group.error
@@ -319,7 +322,6 @@
                             attribute_family_id: null,
                             locale_code: null,
                             created_at: null,
-                            attribute_id: null,
                         },
                         family:[],
                         

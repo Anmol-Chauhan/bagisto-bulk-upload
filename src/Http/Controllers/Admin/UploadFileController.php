@@ -440,22 +440,22 @@ class UploadFileController extends Controller
         
         if (session()->has('uploadedProduct')) {
             $data['uploadedProduct'] = session()->get('uploadedProduct');
-        }   
+        }  
         
         if (session()->has('isFileUploadComplete')) {
             $isFileUploadComplete = session()->get('isFileUploadComplete');
-            $status = false;
         }
         
         if (session()->has('completionMessage')) {
             $message = true;
             $data['completionMessage'] = session()->get('completionMessage');
+            $status = false;
         }
         
         if (empty($data)) {
             $status = false;
         }
         
-        return response()->json(['message' => $data ,'status' => $status,'success'=>$message, 'isFileUploadComplete' => $isFileUploadComplete], 200);
+        return response()->json(['response' => $data ,'status' => $status,'success'=>$message, 'isFileUploadComplete' => $isFileUploadComplete], 200);
     }
 }

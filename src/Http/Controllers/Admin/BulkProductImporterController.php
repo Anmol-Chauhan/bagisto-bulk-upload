@@ -91,15 +91,22 @@ class BulkProductImporterController extends Controller
     public function update()
     {
         $id = request()->input('id');
-        dd($id,request()->all());
-
+        
         $this->validate(request(), [
             'name'                => ['required', 'unique:bulk_product_importers,name,' . $id],
             'attribute_family_id' => 'required'
         ]);
 
+        $data = [
+            'id'                  => request()->id,
+            'name'                => request()->name,
+            'attribute_family_id' => is_numeric(request()->attribute_family_id) ? request()->attribute_family_id : request()->family_id,
+            'locale_code'         => request()->locale_code,
+            '_method'             => request()->_method
+        ];
+
         try {
-            $this->bulkProductImporterRepository->update(request()->all(), $id);
+            $this->bulkProductImporterRepository->update($data, $id);
 
         } catch (\Exception $e) {
             session()->flash('error', trans('admin::app.response.delete-failed', ['name' => 'SuperSet']));
@@ -156,7 +163,7 @@ class BulkProductImporterController extends Controller
     public function getAttributeByImporterID()
     {
         $profiles = $this->bulkProductImporterRepository->findOrFail(request()->id);
-
+        
         $family = $this->attributeFamilyRepository->find($profiles['attribute_family_id']);
         
         return new JsonResponse([

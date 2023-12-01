@@ -206,7 +206,6 @@
                 },
 
                 mounted() {
-                    // this.resetTimer();
                     this.loadStoredTimer();
                     this.getUploadedProductAndProductValidation(this.status = true);
                 },
@@ -379,20 +378,21 @@
                             this.isProductUploaded = true;
                             this.isProductError = true;
                             
-                            if (result.data.message.length == 0) {
+                            if (result.data.response.length == 0) {
                                 this.isProductUploaded = false;
                                 this.isProductError = false;
                             }
 
-                            this.uploadedProductList = result.data.message.uploadedProduct;
-                            this.notUploadedProductList = result.data.message.notUploadedProduct;
-
+                            this.uploadedProductList = result.data.response.uploadedProduct;
+                            this.notUploadedProductList = result.data.response.notUploadedProduct;
+                            
                             if (result.data.success) {
-
-                                this.$emitter.emit('add-flash', { type: 'success', message: result.data.message.completionMessage });
                                 
                                 this.stopTimer();
-
+                                
+                                this.$emitter.emit('add-flash', { type: 'success', message: result.data.response.completionMessage });
+                                
+                                this.running = true;
                                 // Remove a specific item from localStorage
                                 localStorage.removeItem('timerState');
 
