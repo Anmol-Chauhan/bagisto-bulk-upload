@@ -206,9 +206,8 @@
                 },
 
                 mounted() {
-                    // this.resetTimer();
                     this.loadStoredTimer();
-                    this.getUploadedProductAndProductValidation(this.status = true);
+                    this.getUploadedProductAndProductValidation(this.status = this.running);
                 },
 
                 computed: {
