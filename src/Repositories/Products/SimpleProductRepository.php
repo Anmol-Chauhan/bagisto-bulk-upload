@@ -166,7 +166,6 @@ class SimpleProductRepository extends BaseRepository
 
             if ($product->type == 'downloadable' && isset($csvData['samples_title'])) {
                 $downloadableSamples = $this->addSamples($csvData, $dataFlowProfileRecord, $product);
-
                 if (isset($downloadableSamples['error'])) {
                     $this->helperRepository->deleteProductIfNotValidated($product->id);
 
@@ -216,7 +215,14 @@ class SimpleProductRepository extends BaseRepository
         }
     }
 
-    // Process product attributes and return data array
+    /**
+     * Process product attributes and return data array
+     *
+     * @param array $csvData
+     * @param array $product
+     * @return array $data
+     * 
+     */
     private function processProductAttributes($csvData, $product)
     {
         $data = [];
@@ -272,7 +278,14 @@ class SimpleProductRepository extends BaseRepository
         return $data;
     }
 
-    // Process product inventory data and update $data array
+    /**
+     * Process product inventory data and update $data array
+     *
+     * @param array $csvData
+     * @param array $data
+     * @return int $data
+     * 
+     */
     private function processProductInventory($csvData, &$data)
     {
         $inventoryCode = preg_split('/,\s*|,/', $csvData['inventory_sources']);
@@ -288,7 +301,13 @@ class SimpleProductRepository extends BaseRepository
         $data['inventories'] =  array_combine($inventoryId, $inventoryData);
     }
 
-    // Process product categories and update $data array
+    /**
+     * Process product categories and update $data array
+     *
+     * @param array $csvData
+     * @return int $categoryID
+     * 
+     */
     private function processProductCategories($csvData)
     {   
         if (is_null($csvData['categories_slug']) || empty($csvData['categories_slug'])) {
@@ -311,7 +330,13 @@ class SimpleProductRepository extends BaseRepository
         return $categoryID;
     }
 
-    // Process customer group pricing and update $data array
+    /**
+     * Process customer group pricing and update $data array
+     *
+     * @param array $csvData
+     * @param array $product
+     * 
+     */
     private function processCustomerGroupPricing($csvData, &$data, $product)
     {
         if (isset($csvData['customer_group_prices']) && ! empty($csvData['customer_group_prices'])) {
@@ -320,7 +345,15 @@ class SimpleProductRepository extends BaseRepository
         }
     }
 
-    // Process product images and update $data array
+     /**
+     * Process product images and update $csvData array
+     *
+     * @param string|array $csvData
+     * @param string|array $dataFlowProfileRecord
+     * @param array $imageZipName
+     * @return mixed
+     * 
+     */
     private function processProductImages($csvData, $imageZipName, $dataFlowProfileRecord)
     {
         $individualProductimages = preg_split('/,\s*|,/', $csvData['images']);
@@ -360,7 +393,14 @@ class SimpleProductRepository extends BaseRepository
         return $productImages;
     }
 
-    // Validate product data and handle errors
+    /**
+     * Validate product data and handle errors 
+     *
+     * @param string|array $data
+     * @param string|array $product
+     * @return string
+     * 
+     */
     private function validateProductData($data, $product)
     {
         $returnRules = $this->helperRepository->validateCSV($product);
@@ -387,6 +427,15 @@ class SimpleProductRepository extends BaseRepository
         return null; // No validation errors
     }
 
+    /**
+     * add link and sample file and return error 
+     *
+     * @param string|array $csvData
+     * @param array $dataFlowProfileRecord
+     * @param string|array $product
+     * @return mixed
+     *
+     */
     public function addLinksAndSamples($csvData, $dataFlowProfileRecord, $product)
     {
         $downloadableLinks = $this->extractDownloadableFiles($dataFlowProfileRecord);
@@ -486,6 +535,15 @@ class SimpleProductRepository extends BaseRepository
         return $combinedLinksArray;
     }
 
+    /**
+     * add sample file and return error 
+     *
+     * @param string|array $csvData
+     * @param array $dataFlowProfileRecord
+     * @param string|array $product
+     * @return mixed
+     *
+     */
     public function addSamples($csvData, $dataFlowProfileRecord, $product)
     {
         $downloadableLinks = $this->extractDownloadableFiles($dataFlowProfileRecord);

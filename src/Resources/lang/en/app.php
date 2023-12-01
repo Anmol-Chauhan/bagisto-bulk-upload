@@ -2,12 +2,20 @@
 
 return [
     'admin' => [
+        /**
+         * System Configuration.
+         */
+
         'system'      => [
             'bulkupload' => 'Bulk-Upload Product',
             'settings'   => 'Settings',
             'general'    => 'General',
             'status'     => 'Status',
         ],
+
+        /**
+         * Bulk product configuration 
+         */
 
         'bulk-upload' => [
             'index'              => 'Bulk-Upload',
@@ -29,6 +37,10 @@ return [
                 ]
             ],
 
+            /**
+             * Run profiler configuration 
+             */
+
             'run-profile' => [
                 'run'               => 'Import Products',
                 'index'             => 'Run Profile',
@@ -43,11 +55,17 @@ return [
                 'uploaded-product'  => 'Products which are uploaded',
                 'profile-execution' => 'Starting profile execution, please wait...',
                 'products-uploaded' => 'Products Uploaded',
+                'delete-csv-btn'    => 'Delete CSV',
             ],
 
-            'upload-file'       => [
-                'delete'    => 'Delete File',
+            'upload-file' => [
+                'delete'        => 'Delete File',
+                'download-file' => 'Download CSV',
             ],
+
+            /**
+             * Upload product files configuration 
+             */
 
             'upload-files' => [
                 'file'                     => 'CSV/XLS/XLSX file',
@@ -66,11 +84,19 @@ return [
                 'upload-link-files'        => 'Upload Link Files',
                 'upload-sample-files'      => 'Upload Sample Files',
                 'upload-link-sample-files' => 'Upload Link Sample Files',
+                'upload-product-time'      => 'Time Taken', 
+                'uploaded-product'         => 'Uploaded Product',
+                'not-uploaded-product'     => 'Not Uploaded Product',
+                'profiler-name'            => 'Profiler Name',
+                'csv-link'                 => 'CSV Link',
+                'date-and-time'            => 'Date & Time',
+                'delete-file'              => 'Delete File',
             ],
 
             'messages' => [
                 'profile-saved'             => 'Profile added successfully',
                 'update-profile'            => 'Profile updated successfully',
+                'product-not-supported'     => 'Booking product not supported this module',
                 'profile-deleted'           => 'Profile deleted successfully',
                 'file-format-error'         => 'Invalid File Extension',
                 'all-profile-deleted'       => 'All the selected profiles have been deleted successfully',

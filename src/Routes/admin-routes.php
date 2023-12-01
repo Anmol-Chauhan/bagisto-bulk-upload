@@ -36,8 +36,8 @@ Route::middleware(['web', 'admin'])
                     ->name('admin.bulk-upload.bulk-product-importer.massDelete');
 
                 // Get Attribute Family by Importer ID
-                Route::post('/get-attribute',[BulkProductImporterController::class, 'getAttributeByImporterID'])
-                    ->name('admin.bulk-upload.bulk-product-importer.get-attribute');
+                Route::post('/get-attribute',[BulkProductImporterController::class, 'getAttributeFamilyByImporterId'])
+                    ->name('admin.bulk-upload.bulk-product-importer.get-attribute-family');
             });
 
             Route::prefix('upload-file')->group(function () {
@@ -60,12 +60,15 @@ Route::middleware(['web', 'admin'])
             });
 
             Route::prefix('import-product-file')->group(function () {
+                // Get attribut family when uploading bulk-product
                 Route::get('/', [UploadFileController::class, 'getFamilyAttributesToUploadFile'])
                     ->name('admin.bulk-upload.import-file.run-profile.index');
 
+                // Get product importer records while product is uploading
                 Route::get('/get-importer', [UploadFileController::class, 'getProductImporter'])
                     ->name('admin.bulk-upload.upload-file.get-importar');
 
+                // Delete importer file while uploading bulk-produuct 
                 Route::post('/delete-file', [UploadFileController::class, 'deleteProductFile'])
                     ->name('admin.bulk-upload.upload-file.delete');
                 
@@ -85,9 +88,11 @@ Route::middleware(['web', 'admin'])
                 Route::post('/get-uploaded-product', [UploadFileController::class, 'getUploadedProductOrNotUploadedProduct'])
                     ->name('admin.bulk-upload.upload-file.get-uploaded-and-not-uploaded-product');
 
+                // Get profile detail
                 Route::get('/get-profiler', [UploadFileController::class, 'getProfiler'])
                     ->name('admin.bulk-upload.upload-file.run-profile.get-profiler-name');
 
+                // Read error CSV file while bulk-product uploads  
                 Route::get('/read-error-file', [UploadFileController::class, 'readErrorFile'])
                     ->name('admin.bulk-upload.upload-file.run-profile.read-error-file');
             });

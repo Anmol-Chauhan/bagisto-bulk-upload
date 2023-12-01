@@ -9,7 +9,6 @@ use Webkul\Bulkupload\DataGrids\Admin\BulkProductImporterDataGrid;
 
 class BulkProductImporterController extends Controller
 {
-
     /**
      * Create a new controller instance.
      *
@@ -58,7 +57,6 @@ class BulkProductImporterController extends Controller
             $this->bulkProductImporterRepository->create(request()->all());
 
         } catch (\Exception $e) {
-            session()->flash('error', trans('admin::app.response.delete-failed', ['name' => 'SuperSet']));
         }
 
         return new JsonResponse([
@@ -69,7 +67,9 @@ class BulkProductImporterController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
+     * 
+     * Depricate function
+     * 
      * @param  int  $id
      * @return \Illuminate\View\View
      */
@@ -109,7 +109,6 @@ class BulkProductImporterController extends Controller
             $this->bulkProductImporterRepository->update($data, $id);
 
         } catch (\Exception $e) {
-            session()->flash('error', trans('admin::app.response.delete-failed', ['name' => 'SuperSet']));
         }
 
         return new JsonResponse([
@@ -156,11 +155,11 @@ class BulkProductImporterController extends Controller
     }
 
     /**
-     * Get Attribute By Importer ID
+     * Get Attribute family byiImporter id
      *
      * @return \Illuminate\Http\Response
      */
-    public function getAttributeByImporterID()
+    public function getAttributeFamilyByImporterId()
     {
         $profiles = $this->bulkProductImporterRepository->findOrFail(request()->id);
         

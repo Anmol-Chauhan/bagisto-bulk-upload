@@ -5,7 +5,6 @@ namespace Webkul\Bulkupload\DataGrids\Admin;
 use DB;
 use Webkul\DataGrid\DataGrid;
 
-
 class BulkProductImporterDataGrid extends DataGrid
 {
     /**

@@ -29,10 +29,12 @@ class ProductUploadJob implements ShouldQueue
 
     /**
      * Execute the job.
+     * 
+     * Store the uploaded or error of product records 
      */
     public function handle()
     {
-        // flush session when the new product uploading
+        // flush session when the new CSV file executing 
         session()->forget('notUploadedProduct');
         session()->forget('uploadedProduct');
         session()->forget('isFileUploadComplete');
@@ -66,7 +68,7 @@ class ProductUploadJob implements ShouldQueue
             session()->put('completionMessage', "CSV Product Successfully Imported");
             session()->put('isFileUploadComplete', true);
         }
-
+        
         if ($isError) {
 
             Excel::store(new DataGridExport(collect($records)), 'error-csv-file/'.$this->dataFlowProfileRecord->profiler->id.'/'.Str::random(10).'.csv');

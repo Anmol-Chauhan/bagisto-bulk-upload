@@ -97,7 +97,7 @@
                     </x-admin::form.control-group>
                     
                     <div class="control-group product-uploading-message">
-                        <p v-if="running">Time Taken: @{{ formattedTime }}</p>
+                        <p v-if="running">@lang('bulkupload::app.admin.bulk-upload.upload-files.upload-product-time'): @{{ formattedTime }}</p> 
                     </div>
                     <div class="page-action" v-if="this.product_file_id != '' && this.product_file_id != 'Please Select'">
                         <div class="flex gap-x-[10px] items-center">
@@ -117,7 +117,7 @@
                 <div>
                     <p v-if="isProductUploaded" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.uploaded-product')</p><br>
                     <ul class="overflow-y-auto whitespace-nowrap p-4" style="height: 150px;">
-                        <li v-for="(item, index) in uploadedProductList" :key="index" class="dark:text-white"> Uploaded Product :- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
+                        <li v-for="(item, index) in uploadedProductList" :key="index" class="dark:text-white">@lang('bulkupload::app.admin.bulk-upload.upload-files.uploaded-product') :- Product id: @{{ item.id }} Product SKU: @{{ item.sku }} Product type: @{{ item.type }}</li>
                     </ul>
                 </div>
                 <br>
@@ -126,36 +126,36 @@
                 <div>
                     <p v-if="isProductError" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error-in-product')</p><br>
                     <ul class="overflow-y-auto whitespace-nowrap p-4" style="height: 150px;">
-                        <li v-for="(item, index) in  notUploadedProductList" :key="index" class="dark:text-white">Not Uploaded Product :- @{{ item.error }}</li>
+                        <li v-for="(item, index) in  notUploadedProductList" :key="index" class="dark:text-white">@lang('bulkupload::app.admin.bulk-upload.upload-files.not-uploaded-product') :- @{{ item.error }}</li>
                     </ul>
                 </div>
                 <br>
 
                 <!-- After Product Uploaded Error Records -->
-                <div class="flex justify-between items-center">
+                <p v-if="errorCsvFile.length" class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p><br>
+                <div class="grid justify-between">
                     <div v-for="(item, index) in errorCsvFile" :key="index" >
-                        <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.run-profile.error')</p><br>
-                        <table>
+                        <table class="grid justify-between">
                             <tr>
-                                <th> Profiler Name:- @{{ profilerNames[index] }}</th>
+                                <th> @lang('bulkupload::app.admin.bulk-upload.upload-files.profiler-name'):- @{{ profilerNames[index] }}</th>
                             </tr>
 
-                            <tr>
-                                <th> CSV Link </th>
-                                <th> Date & Time </th>
-                                <th> Delete File </th>
+                            <tr class="flex justify-between">
+                                <th>@lang('bulkupload::app.admin.bulk-upload.upload-files.csv-link')</th>
+                                <th>@lang('bulkupload::app.admin.bulk-upload.upload-files.date-and-time')</th>
+                                <th>@lang('bulkupload::app.admin.bulk-upload.upload-files.delete-file')</th>
                             </tr>
 
-                            <tr v-for="(record) in item">
+                            <tr v-for="(record) in item" class="flex justify-between">
                                 <td>
-                                    <a :href="record.link" class="text-[#161B9D] dark:text-white">Download CSV</a>
+                                    <a :href="record.link" class="text-[#161B9D] dark:text-white">@lang('bulkupload::app.admin.bulk-upload.upload-file.download-file')</a>
                                 </td>
                                 <td>
                                     <span>@{{ record.time }}</span>
                                 </td>
                                 <td>
                                     <span @click="deleteCSV(index, record.fileName)">
-                                        <button class="primary-button">Delete</button>
+                                        <button class="primary-button">@lang('bulkupload::app.admin.bulk-upload.upload-file.delete')</button>
                                     </span>
                                 </td>
                             </tr>
@@ -206,6 +206,7 @@
                 },
 
                 mounted() {
+                    // this.resetTimer();
                     this.loadStoredTimer();
                     this.getUploadedProductAndProductValidation(this.status = true);
                 },
@@ -295,7 +296,7 @@
 
                         return dateTime.toLocaleString(); // Adjust the format as needed
                     },
-
+                    // Run profiler and execute bulk-products
                     runProfiler() {
                         this.startTimer();
                         
@@ -316,7 +317,7 @@
                             const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.read-csv') }}";
 
                             this.$emitter.emit('add-flash', { type: 'success', message: result.data.message });
-                            
+                            console.log(result.data);
                             if (result.data.success == true) {
                                 this.getUploadedProductAndProductValidation(this.status = false);
                             
@@ -336,7 +337,7 @@
                             this.getErrorCsvFile();
                         });
                     },
-
+                    // Get CSV file error 
                     getErrorCsvFile() {
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.download-csv') }}"
                         
@@ -350,7 +351,7 @@
                                 console.log(error);
                             });
                     },
-
+                    // Delete CSV file
                     deleteCSV(id, name) {
                         
                         const uri = "{{ route('admin.bulk-upload.upload-file.run-profile.delete-csv-file') }}"

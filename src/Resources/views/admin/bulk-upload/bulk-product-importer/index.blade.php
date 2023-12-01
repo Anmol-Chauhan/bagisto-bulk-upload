@@ -310,6 +310,7 @@
 
 
         <script type="module">
+            // create vue tempalete
             app.component('v-create-bulk-product', {
                 template: '#v-create-bulk-product-template',
 
@@ -329,6 +330,7 @@
                 },
 
                 methods: {
+                    // Open create modal and submit request
                     updateOrCreate(params, { resetForm, setErrors  }) {
                         let formData = new FormData(this.$refs.bulkProductCreateForm);
 
@@ -352,7 +354,7 @@
                                 }
                             });
                     },
-
+                    // Edit open modal and set the values
                     editModal(value) {
                         this.$refs.bulkProductUpdateOrCreateModal.toggle();
                         
@@ -361,9 +363,9 @@
                         this.data.locale_code = value.locale_code;
                         this.data.attribute_family_id = value.name;
                         this.data.created_at = value.created_at;  
-                                      
                         
-                        const uri = "{{ route('admin.bulk-upload.bulk-product-importer.get-attribute') }}"
+                        // Get attribute family by iporter id
+                        const uri = "{{ route('admin.bulk-upload.bulk-product-importer.get-attribute-family') }}"
                         
                         this.$axios.post(uri,{
                             id:value.id

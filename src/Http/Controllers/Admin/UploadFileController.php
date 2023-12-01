@@ -194,10 +194,14 @@ class UploadFileController extends Controller
         return back();
     }
 
+    /**
+     * Display a run profiler page and get family by attribute family id.
+     *
+     * @return \Illuminate\View\View
+     */
     public function getFamilyAttributesToUploadFile()
     {
         $uniqueAttributeFamilyIds = $this->importProductRepository->distinct()->pluck('attribute_family_id');
-
         $families = $this->attributeFamilyRepository->whereIn('id', $uniqueAttributeFamilyIds)->get();
 
         return view('bulkupload::admin.bulk-upload.run-profile.index', compact('families'));
@@ -220,6 +224,11 @@ class UploadFileController extends Controller
         return ['dataFlowProfiles' => $productImporter];
     }
 
+    /**
+     * Delete producct file from run profiler
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteProductFile()
     {
         try {
@@ -234,14 +243,13 @@ class UploadFileController extends Controller
         }
     }
 
+    /**
+     * Read CSV file and upload bulk-product using Jobs 
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function readCSVData()
     {
-        // flush session when the new product uploading
-        session()->forget('notUploadedProduct');
-        session()->forget('uploadedProduct');
-        session()->forget('isFileUploadComplete');
-        session()->forget('completionMessage');
-
         $productFileRecord = $this->importProductRepository->where([
             'bulk_product_importer_id' => request()->bulk_product_importer_id,
             'id' => request()->product_file_id,
@@ -256,7 +264,17 @@ class UploadFileController extends Controller
 
         $csvData = (new DataGridImport)->toArray($productFileRecord->file_path)[0];
         
-        // $productFileRecord->update(['status' => 0]);
+        // Check booking type product is not supported 
+        if (! empty($csvData)) {
+            foreach ($csvData as $data) {
+                if ($data['type'] == 'booking') {
+                    return response()->json([
+                        "success" => false,
+                        'message' => trans('bulkupload::app.admin.bulk-upload.messages.product-not-supported'),
+                    ]);
+                }
+            }
+        }
 
         $countConfig = count(array_filter($csvData, function ($item) {
             return $item['type'] === 'configurable';
@@ -283,8 +301,6 @@ class UploadFileController extends Controller
         $batch = Bus::batch([])->dispatch();
 
         $batch->add(new ProductUploadJob($imageZipName, $productFileRecord, $chunks, $countCSV));
-               
-        // $productFileRecord->delete();
         
         return response()->json([
             "success" => true,
@@ -345,9 +361,13 @@ class UploadFileController extends Controller
         return $imageZipName;
     }
 
+    /**
+     * Get error after bulk-product uploaded and return error file
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function downloadCsv()
     {
-        
         $folderPath = public_path('storage/error-csv-file');
 
         // Check if the folder exists
@@ -392,11 +412,19 @@ class UploadFileController extends Controller
             ]);
     }
 
+    /**
+     * Depricate function 
+     */
     public function getProfiler()
     {
         return $this->bulkProductImporterRepository->find(request()->input('id'))->name;
     }
 
+    /**
+     * Delete CSV file from run profiler page
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteCSV()
     {
         $fileToDelete = 'error-csv-file/' . request('id') . '/' . request('name');
@@ -408,6 +436,9 @@ class UploadFileController extends Controller
         return response()->json(['message' => 'File not found'], 404);
     }
 
+    /**
+     * Depricate function 
+     */
     public function readErrorFile()
     {
         // Read the CSV file and generate HTML to display product data
@@ -426,7 +457,11 @@ class UploadFileController extends Controller
     }
     
     
-    // Get Uploaded and not uploaded product detail
+    /**
+     * Get Uploaded and not uploaded product detail from session
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getUploadedProductOrNotUploadedProduct()
     {   
         $data = [];
@@ -444,6 +479,7 @@ class UploadFileController extends Controller
         
         if (session()->has('isFileUploadComplete')) {
             $isFileUploadComplete = session()->get('isFileUploadComplete');
+            $status = false;
         }
         
         if (session()->has('completionMessage')) {

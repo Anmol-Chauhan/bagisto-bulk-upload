@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Webkul\Bulkupload\Contracts\BulkProductImporter as BulkProductImporterContract;
 
-
 class BulkProductImporter extends Model implements BulkProductImporterContract
 {
     protected $guarded = [];

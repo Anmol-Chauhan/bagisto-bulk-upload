@@ -2,6 +2,11 @@
 
 #### This changelog consists the bug & security fixes and new features being included in the releases listed below.
 
+
+## **v2.0.0(01th of Dec, 2023)** - _Release_
+
+- [compatible] Compatible with bagisto v2.0.0.
+
 ## **v1.5.1(22th of Nov, 2023)** - _Release_
 
 - [compatible] Compatible with bagisto v1.5.1.
