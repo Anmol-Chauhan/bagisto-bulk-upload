@@ -1,250 +1,325 @@
-@extends('admin::layouts.content')
+<x-admin::layouts>
 
-@section('page_title')
-    {{ __('bulkupload::app.admin.bulk-upload.upload-files.index') }}
-@stop
+    <x-slot:title>
+        @lang('bulkupload::app.admin.bulk-upload.upload-files.index')
+    </x-slot>
 
-@section('content')
-    <div class="account-layout">
-
+    <div class="p-[16px] bg-white dark:bg-gray-900 rounded-[4px] grid grid-cols-2">
         <!-- download samples -->
-        <accordian :title="'{{ __('bulkupload::app.admin.bulk-upload.upload-files.download-sample') }}'" :active="true">
-            <div slot="body">
-                <div class="import-product">
-                    <form action="{{ route('download-sample-files') }}" method="post">
-                        <div class="account-table-content">
-                            @csrf
-                            <div class="control-group">
-                                <select class="control" id="download-sample" name="download_sample">
-                                    <option value="">
-                                        {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
-                                    </option>
+        <div class="import-product">
+            <div class="flex justify-between items-center">
+                <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.sample-file')</p>  
+            </div><br>
 
-                                    @foreach($productTypes as $key => $productType)
-                                        <option value="{{ $key }}-csv">
-                                            {{ __('bulkupload::app.admin.bulk-upload.upload-files.csv-file', ['filetype' => ucwords($key) ]) }}
-                                        </option>
+            <x-admin::form
+                :action="route('admin.bulk-upload.upload-file.download-sample-files')"
+                method="post"
+            >
+                @csrf
 
-                                        <option value="{{ $key }}-xls">
-                                            {{ __('bulkupload::app.admin.bulk-upload.upload-files.xls-file', ['filetype' => ucwords($key) ]) }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                <x-admin::form.control-group class="w-full mb-[10px]">
+                    <x-admin::form.control-group.label class="required">
+                        @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
+                    </x-admin::form.control-group.label>
 
-                                <div class="mt-10">
-                                    <button type="submit" class="btn btn-lg btn-primary">
-                                        {{ __('bulkupload::app.admin.bulk-upload.upload-files.download') }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </accordian>
+                    <x-admin::form.control-group.control
+                        type="select"
+                        name="download_sample"
+                        id="download-sample"
+                        rules="required"
+                        :label="trans('bulkupload::app.admin.bulk-upload.run-profile.please-select')"
+                    >
+                        <option value="">
+                            @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
+                        </option>
+                        @foreach(config('product_types') as $key => $productType)
+                            <option value="{{ $key }}-product-upload.csv">
+                                @lang('bulkupload::app.admin.bulk-upload.upload-files.csv-file', ['filetype' => ucwords($key) ])
+                            </option>
 
-        <!-- Import New products -->
-        <accordian :title="'{{ __('bulkupload::app.admin.bulk-upload.upload-files.import-products') }}'" :active="true">
-            <div slot="body">
-                <div class="import-new-products">
-                    <form method="POST" action="{{ route('import-new-products-form-submit') }}" enctype="multipart/form-data">
-                        @csrf
-                        <?php $familyId = app('request')->input('family') ?>
+                            <option value="{{ $key }}-product-upload.xlsx">
+                                @lang('bulkupload::app.admin.bulk-upload.upload-files.xls-file', ['filetype' => ucwords($key) ])
+                            </option>
+                        @endforeach
+                    </x-admin::form.control-group.control>
 
-                        <div class="page-content">
-                            <div class="is_downloadable">
-                                <downloadable-input>
-                                </downloadable-input>
-                            </div>
-
-                            <div class="attribute-family">
-                                <attributefamily></attributefamily>
-                            </div>
-
-                            <div class="control-group {{ $errors->first('file_path') ? 'has-error' :'' }}">
-                                <label class="required">{{ __('bulkupload::app.admin.bulk-upload.upload-files.file') }} </label>
-
-                                <input type="file" class="control" name="file_path" id="file">
-
-                                <span class="control-error">{{ $errors->first('file_path') }}</span>
-                            </div>
-
-                            <div class="control-group {{ $errors->first('image_path') ? 'has-error' :'' }}">
-                                <label>{{ __('bulkupload::app.admin.bulk-upload.upload-files.image') }} </label>
-
-                                <input type="file" class="control" name="image_path" id="image">
-
-                                <span class="control-error">{{ $errors->first('image_path') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="page-action">
-                            <button type="submit" class="btn btn-lg btn-primary">
-                            {{ __('bulkupload::app.admin.bulk-upload.upload-files.save')  }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </accordian>
+                    <x-admin::form.control-group.error
+                        class="mt-3"
+                        control-name="download_sample"
+                    >
+                    </x-admin::form.control-group.error>
+                </x-admin::form.control-group>
+        
+                <!-- Download Sample Product -->
+                <div class="flex gap-x-[10px] items-center">
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        @lang('bulkupload::app.admin.bulk-upload.upload-files.download')
+                    </button>
+                </div><br>
+            </x-admin::form>
+        </div>
     </div>
-@stop
-
-@push('scripts')
-    <script type="text/x-template" id="downloadable-input-template">
-        <div>
-            <div class="control-group">
-                <label for="is_downloadable">
-                    {{ __('bulkupload::app.admin.bulk-upload.upload-files.is-downloadable') }}
-                </label>
-
-                <input type="checkbox" @click="showOptions()" id="is_downloadable" name="is_downloadable">
-            </div>
-
-            <div class="control-group" v-if="isLinkSample">
-                <label for="is_link_sample">{{ __('bulkupload::app.admin.bulk-upload.upload-files.sample-links') }}</label>
-
-                <input type="checkbox" id="is_link_have_sample" @click="showlinkSamples()" name="is_link_have_sample" value="is_link_have_sample" >
-            </div>
-
-            <div class="control-group" v-if="isSample">
-                <label for="is_sample">{{ __('bulkupload::app.admin.bulk-upload.upload-files.sample-available') }}</label>
-
-                <input type="checkbox" id="is_sample" @click="showSamples()" name="is_sample">
-            </div>
-
-            <div class="control-group" v-if="linkFiles">
-                <label class="required">{{ __('bulkupload::app.admin.bulk-upload.upload-files.upload-link-files') }}</label>
-
-                <input type="file" class="control required" name="link_files" id="file">
-
-                <span class="control-error">{{ $errors->first('file_path') }}</span>
-            </div>
-
-            <div class="control-group" v-if="linkSampleFiles">
-                <label class="required">{{ __('bulkupload::app.admin.bulk-upload.upload-files.upload-link-sample-files') }}</label>
-
-                <input type="file" class="control required"  name="link_sample_files" id="file">
-
-                <span class="control-error">{{ $errors->first('file_path') }}</span>
-            </div>
-
-            <div class="control-group" v-if="sampleFile">
-                <label class="required">{{ __('bulkupload::app.admin.bulk-upload.upload-files.upload-sample-files') }}</label>
-
-                <input type="file" class="control required"  name="sample_file" id="file">
-
-                <span class="control-error">{{ $errors->first('file_path') }}</span>
-            </div>
-
+    
+    <!-- Import New products -->
+    <div class="import-new-products grid grid-cols-2">
+        <div class="flex justify-between items-center">
+            <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.import-products')</p>  
         </div>
-    </script>
+    </div>
+    
+    <div class="grid grid-cols-2">
+        <importer-product-input></importer-product-input>
+    </div>
 
-    <script type="text/x-template" id="attribute-family-template">
-        <div>
-            <div class="control-group {{ $errors->first('attribute_family') ? 'has-error' :'' }}">
-                <label for="attribute_family" class="required">{{ __('admin::app.catalog.products.familiy') }}</label>
+    @pushOnce('scripts')
+        <script type="text/x-template" id="importer-product-input-template">
+            <div>
+                <x-admin::form
+                    method="POST"
+                    :action="route('admin.bulk-upload.upload-file.import-products-file')"
+                    enctype="multipart/form-data"
+                >
+                    @csrf
+                
+                    <x-admin::form.control-group class="w-full mb-[10px]">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.is-downloadable')
+                        </x-admin::form.control-group.label>
 
-                <select @change="onChange()" v-model="key" class="control" id="attribute_family" name="attribute_family" {{ $familyId ? 'disabled' : '' }}>
-                    <option value="">
-                        {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
-                    </option>
+                        <x-admin::form.control-group.control
+                            type="checkbox"
+                            name="is_downloadable"
+                            id="is_downloadable"
+                            @click="showOptions"
+                            v-model="isDownloadableChecked"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
 
-                    @foreach ($families as $family)
-                        <option value="{{ $family->id }}" {{ ($familyId == $family->id || old('attribute_family') == $family->id) ? 'selected' : '' }}>{{ $family->name }}</option>
-                    @endforeach
-                </select>
+                    <x-admin::form.control-group class="w-full mb-[10px]" v-if="linkFiles">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.upload-link-files')
+                        </x-admin::form.control-group.label>
 
-                @if ($familyId)
-                    <input type="hidden" name="attribute_family" value="{{ $familyId }}"/>
-                @endif
+                        <x-admin::form.control-group.control
+                            type="file"
+                            name="link_files"
+                            id="file"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
 
-                <span class="control-error">{{ $errors->first('attribute_family') }}</span>
+                    <x-admin::form.control-group class="w-full mb-[10px]" v-if="isLinkSample">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.sample-links')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="checkbox"
+                            name="is_link_have_sample"
+                            id="is_link_have_sample"
+                            @click="showlinkSamples"
+                            value="is_link_have_sample"
+                            v-model="isLinkSampleHaveChecked"
+                            
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+
+                    <x-admin::form.control-group class="w-full mb-[10px]" v-if="linkSampleFiles">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.upload-link-sample-files')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="file"
+                            name="link_sample_files"
+                            id="file"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+
+                    <x-admin::form.control-group class="w-full mb-[10px]" v-if="isSample">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.sample-available')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="checkbox"
+                            name="is_sample"
+                            id="is_sample"
+                            @click="showSamples"
+                            v-model="isSampleAvailableChecked"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+
+                    <x-admin::form.control-group class="w-full mb-[10px]" v-if="sampleFile">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.upload-sample-files')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="file"
+                            name="sample_file"
+                            id="file"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+
+                    <x-admin::form.control-group class="w-full mb-[10px]">
+                        <x-admin::form.control-group.label class="required">
+                            @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.family')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="select"
+                            name="attribute_family_id"
+                            id="attribute_family_id"
+                            :value="old('attribute_family_id')"
+                            rules="required"
+                            v-model="attribute_family_id"
+                            @change="onChange"                           
+                        >
+                            <option value="">
+                                @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
+                            </option>
+
+                            @foreach ($families as $family)
+                                <option :value="{{ $family->id }}">
+                                    {{ $family->name }}
+                                </option>
+                            @endforeach
+                        </x-admin::form.control-group.control>
+
+                        <x-admin::form.control-group.error
+                            class="mt-3"
+                            control-name="attribute_family_id"
+                        >
+                        </x-admin::form.control-group.error>
+                    </x-admin::form.control-group>
+                
+                    <x-admin::form.control-group class="w-full mb-[10px]">
+                        <x-admin::form.control-group.label class="required">
+                            @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')
+                        </x-admin::form.control-group.label>
+        
+                        <x-admin::form.control-group.control
+                            type="select"
+                            name="bulk_product_importer_id"
+                            id="bulk_product_importer_id"
+                            rules="required"
+                            :label="trans('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')"
+                        >
+                            <option value="">
+                                @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
+                            </option>
+                            <option v-for="dataflowprofile,index in dataFlowProfiles" :value="dataflowprofile.id">
+                                @{{ dataflowprofile.name }}
+                            </option>
+                        </x-admin::form.control-group.control>
+        
+                        <x-admin::form.control-group.error
+                            class="mt-3"
+                            control-name="bulk_product_importer_id"
+                        >
+                        </x-admin::form.control-group.error>
+                    </x-admin::form.control-group>
+            
+                    <x-admin::form.control-group class="w-full mb-[10px]">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.file')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="file"
+                            name="file_path"
+                            id="file"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+        
+                    <x-admin::form.control-group class="w-full mb-[10px]">
+                        <x-admin::form.control-group.label>
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.image')
+                        </x-admin::form.control-group.label>
+
+                        <x-admin::form.control-group.control
+                            type="file"
+                            name="image_path"
+                            id="image"
+                        >
+                        </x-admin::form.control-group.control>
+                    </x-admin::form.control-group>
+    
+                    <!-- Modal Submission -->
+                    <div class="flex gap-x-[10px] items-center">
+                        <button 
+                            type="submit"
+                            class="primary-button"
+                        >
+                            @lang('bulkupload::app.admin.bulk-upload.upload-files.save')
+                        </button>
+                    </div>
+                </x-admin::form>
             </div>
+        </script>
 
-            <div class="control-group {{ $errors->first('data_flow_profile') ? 'has-error' :'' }}">
-                <label for="data-flow-profile" class="required">{{ __('bulkupload::app.admin.bulk-upload.data-flow-profile.index') }}</label>
+        <script type="module">
+            app.component('importer-product-input', {
+                    template: '#importer-product-input-template',
 
-                <select class="control" id="data-flow-profile" name="data_flow_profile">
-                    <option value="">
-                        {{ __('bulkupload::app.admin.bulk-upload.run-profile.please-select') }}
-                    </option>
-                    <option v-for="dataflowprofile,index in dataFlowProfiles" :value="dataflowprofile.id">@{{ dataflowprofile.name }}</option>
-                </select>
-
-            <span class="control-error">{{ $errors->first('data_flow_profile') }}</span>
-
-            </div>
-        </div>
-    </script>
-
-    <script>
-        Vue.component('attributefamily', {
-                template: '#attribute-family-template',
-                data: function() {
-                    return {
-                        key: "",
-                        // seller: "",
-                        dataFlowProfiles: [],
-                    }
-                },
-
-                mounted: function() {
-                },
-
-                methods:{
-                    onChange: function() {
-                        this_this = this;
-
-                        var uri = "{{ route('bulk-upload-admin.get-all-profile') }}"
-
-                        this_this.$http.post(uri, {
-                            attribute_family_id: this_this.key,
-                            // seller_id: this_this.seller,
-                        })
-                        .then(response => {
-                            this_this.dataFlowProfiles = response.data.dataFlowProfiles;
-                        })
-
-                        .catch(function(error) {
-                        });
-                    }
-                }
-        })
-
-        Vue.component('downloadable-input', {
-                template: '#downloadable-input-template',
-                data: function() {
-                    return {
-                        key: "",
-                        // seller: "",
-                        dataFlowProfiles: [],
-                        isLinkSample: false,
-                        isSample: false,
-                        linkFiles: false,
-                        linkSampleFiles: false,
-                        sampleFile: false,
-                    }
-                },
-
-                methods:{
-                    showOptions: function() {
-                        this.isLinkSample = !this.isLinkSample;
-                        this.isSample = !this.isSample;
-                        this.linkFiles = !this.linkFiles;
-
-                        this.linkSampleFiles = false;
-                        this.sampleFile = false;
+                    data() {
+                        return {
+                            dataFlowProfiles: [],
+                            attribute_family_id: null,
+                            isLinkSample: false,
+                            isSample: false,
+                            linkFiles: false,
+                            linkSampleFiles: false,
+                            sampleFile: false,
+                            is_downloadable:false,
+                            isDownloadableChecked: false,
+                            isLinkSampleHaveChecked: false,
+                            isSampleAvailableChecked: false,
+                        }
                     },
-
-                    showlinkSamples: function() {
-                        this.linkSampleFiles = !this.linkSampleFiles;
+                    methods:{
+                        showOptions() {
+                            this.isDownloadableChecked = ! this.isDownloadableChecked;
+                            this.isLinkSample = ! this.isLinkSample;
+                            this.isSample = ! this.isSample;
+                            this.linkFiles = ! this.linkFiles;
+                            this.linkSampleFiles = false;
+                            this.sampleFile = false;
+                        },
+                        showlinkSamples() {
+                            this.isLinkSampleHaveChecked = !  this.isLinkSampleHaveChecked;
+                            this.linkSampleFiles = ! this.linkSampleFiles;
+                        },
+                        showSamples() {
+                            this.isSampleAvailableChecked = ! this.isSampleAvailableChecked;
+                            this.sampleFile = ! this.sampleFile;
+                        },
+                        onChange() {           
+                            var uri = "{{ route('admin.bulk-upload.upload-file.get-all-profile') }}"
+                            
+                            this.$axios.get(uri, {
+                                params: {
+                                    'attribute_family_id': this.attribute_family_id,
+                                }
+                            })
+                            .then((response) => {
+                                this.dataFlowProfiles = response.data.dataFlowProfiles;
+                            })
+                            .catch(error => {
+                            });
+                        }
                     },
-
-                    showSamples: function() {
-                        this.sampleFile = !this.sampleFile;
-                    }
-                }
-        })
-    </script>
-@endpush
+            });
+        </script>
+    @endPushOnce
+</x-admin::layouts>

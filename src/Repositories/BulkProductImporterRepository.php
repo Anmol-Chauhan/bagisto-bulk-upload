@@ -4,7 +4,7 @@ namespace Webkul\Bulkupload\Repositories;
 
 use Webkul\Core\Eloquent\Repository;
 
-class ImportProductRepository extends Repository
+class BulkProductImporterRepository extends Repository
 {
     /**
      * Specify Model class name
@@ -13,6 +13,6 @@ class ImportProductRepository extends Repository
      */
     function model()
     {
-        return 'Webkul\Bulkupload\Contracts\ImportProduct';
+        return 'Webkul\Bulkupload\Contracts\BulkProductImporter';
     }
 }

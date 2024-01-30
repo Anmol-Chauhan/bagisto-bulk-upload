@@ -12,7 +12,7 @@ It packs in lots of demanding features that allows your business to scale in no 
 
 ## Requirements:
 
-- **Bagisto**: v1.3.3
+- **Bagisto**: v2.0.0
 
 ## Installation with composer:
 - Run the following command

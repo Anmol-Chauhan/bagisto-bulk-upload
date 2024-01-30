@@ -2,69 +2,105 @@
 
 return [
     'admin' => [
-        'system'    => [
-            'bulkupload'    => 'Bulk-Upload Product',
-            'settings'      => 'Settings',
-            'general'       => 'General',
-            'status'        => 'Status',
+        /**
+         * System Configuration.
+         */
+
+        'system'      => [
+            'bulkupload' => 'Bulk-Upload Product',
+            'settings'   => 'Settings',
+            'general'    => 'General',
+            'status'     => 'Status',
         ],
 
+        /**
+         * Bulk product configuration 
+         */
+
         'bulk-upload' => [
-            'index' => 'Bulkupload',
+            'index'              => 'Bulk-Upload',
             'manage-bulk-upload' => 'Manage Bulk Upload',
 
-            'data-flow-profile' => [
-                'index' => 'Data Flow Profile',
-                'add-profile' => 'Add Profile',
-                'grid' => 'Profile Grid',
-                'name' => 'Name',
-                'edit-profile' => 'Edit Profile',
+            'bulk-product-importer' => [
+                'grid'           => 'Profile Grid',
+                'name'           => 'Name',
+                'family'         => 'Attribute Family',
+                'locale'         => 'Default Locale',
+                'index'          => 'Bulk Product Importer',
+                'add-profile'    => 'Add Profile',
+                'edit-profile'   => 'Edit Profile',
                 'update-profile' => 'Update',
 
                 'data-grid' => [
-                    'created-at' => 'Created At',
+                    'created-at'  => 'Created At',
                     'locale_code' => 'Locale code'
                 ]
             ],
 
+            /**
+             * Run profiler configuration 
+             */
+
             'run-profile' => [
-                'index' => 'Run Profile',
-                'select-file' => 'Select File',
-                'please-select' => 'Please Select',
-                'run' => 'Run',
+                'run'               => 'Import Products',
+                'index'             => 'Run Profile',
+                'error'             => 'Products which are not uploaded',
+                'finish'            => 'Finished Profile Execution',
+                'warning'           => 'Warning: Please do not close the window during importing data',
+                'run-command'       => 'Import Products In BackGround',
+                'error-count'       => 'Number of errors while product uploading',
+                'select-file'       => 'Select File',
+                'please-select'     => 'Please Select',
+                'error-in-product'  => 'Error while product uploading',
+                'uploaded-product'  => 'Products which are uploaded',
                 'profile-execution' => 'Starting profile execution, please wait...',
-                'error-count' => 'Number of errors while product uploading',
-                'error-in-product' => 'Error while product uploading',
-                'warning' => 'Warning: Please do not close the window during importing data',
                 'products-uploaded' => 'Products Uploaded',
-                'finish' => 'Finished Profile Execution',
+                'delete-csv-btn'    => 'Delete CSV',
             ],
 
+            'upload-file' => [
+                'delete'        => 'Delete File',
+                'download-file' => 'Download CSV',
+            ],
+
+            /**
+             * Upload product files configuration 
+             */
+
             'upload-files' => [
-                'index' => 'Upload Files',
-                'download-sample' => 'Download Samples',
-                'download' => 'Download',
-                'csv-file' => 'Sample :filetype CSV File',
-                'xls-file' => 'Sample :filetype XLS File',
-                'import-products' => 'Import Products',
-                'is-downloadable' => 'Is downloadable have files',
-                'sample-links' => 'Is Links have samples',
-                'sample-available' => 'Is Samples available',
-                'upload-link-files' => 'Upload Link Files',
+                'file'                     => 'CSV/XLS/XLSX file',
+                'save'                     => 'Save',
+                'index'                    => 'Upload Files',
+                'image'                    => 'Image Zip file',
+                'download'                 => 'Download',
+                'csv-file'                 => 'Sample :filetype CSV File',
+                'xls-file'                 => 'Sample :filetype XLS File',
+                'sample-links'             => 'Is Links have samples',
+                'download-sample'          => 'Download Sample',
+                'sample-file'              => 'Sample Files',
+                'import-products'          => 'Import Products',
+                'is-downloadable'          => 'Is downloadable have files',
+                'sample-available'         => 'Is Samples available',
+                'upload-link-files'        => 'Upload Link Files',
+                'upload-sample-files'      => 'Upload Sample Files',
                 'upload-link-sample-files' => 'Upload Link Sample Files',
-                'upload-sample-files' => 'Upload Sample Files',
-                'file' => 'CSV/XLS/XLSX file',
-                'image' => 'Image Zip file',
-                'save' => 'Save'
+                'upload-product-time'      => 'Time Taken', 
+                'uploaded-product'         => 'Uploaded Product',
+                'not-uploaded-product'     => 'Not Uploaded Product',
+                'profiler-name'            => 'Profiler Name',
+                'csv-link'                 => 'CSV Link',
+                'date-and-time'            => 'Date & Time',
+                'delete-file'              => 'Delete File',
             ],
 
             'messages' => [
-                'profile-saved' => 'Profile added successfully',
-                'profile-deleted' => 'Profile deleted successfully',
-                'all-profile-deleted' => 'All the selected profiles have been deleted successfully',
-                'file-format-error' => 'Invalid File Extension',
-                'update-profile' => 'Profile updated successfully',
-                'data-profile-not-selected' => 'Data Flow Profile not selected',
+                'profile-saved'             => 'Profile added successfully',
+                'update-profile'            => 'Profile updated successfully',
+                'product-not-supported'     => 'Booking product not supported this module',
+                'profile-deleted'           => 'Profile deleted successfully',
+                'file-format-error'         => 'Invalid File Extension',
+                'all-profile-deleted'       => 'All the selected profiles have been deleted successfully',
+                'data-profile-not-selected' => 'Bulk Product Importer not selected',
             ]
         ],
     ],

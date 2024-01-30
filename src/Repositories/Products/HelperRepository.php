@@ -2,11 +2,13 @@
 
 namespace Webkul\Bulkupload\Repositories\Products;
 
-use Illuminate\Support\Facades\Validator;
 use Webkul\Core\Eloquent\Repository;
+use Illuminate\Support\Facades\Validator;
+use Webkul\Core\Rules\Decimal;
+use Webkul\Core\Rules\Slug;
 use Webkul\Product\Models\ProductAttributeValue;
+use Webkul\Admin\Validations\ProductCategoryUniqueSlug;
 use Webkul\Product\Repositories\{ProductRepository, ProductFlatRepository, ProductAttributeValueRepository};
-use Webkul\Bulkupload\Repositories\DataFlowProfileRepository;
 
 class HelperRepository extends Repository
 {
@@ -16,14 +18,12 @@ class HelperRepository extends Repository
      * @param  \Webkul\Product\Repositories\ProductRepository  $productRepository
      * @param  \Webkul\Product\Repositories\ProductFlatRepository  $productFlatRepository
      * @param  \Webkul\Product\Repositories\ProductAttributeValueRepository  $productAttributeValueRepository
-     * @param  \Webkul\Bulkupload\Repositories\DataFlowProfileRepository  $dataFlowProfileRepository
      * @return void
      */
     public function __construct(
         protected ProductRepository $productRepository,
         protected ProductFlatRepository $productFlatRepository,
         protected ProductAttributeValueRepository $productAttributeValueRepository,
-        protected DataFlowProfileRepository $dataFlowProfileRepository
     )
     {
     }
@@ -43,77 +43,53 @@ class HelperRepository extends Repository
      *
      * @param integer $dataFlowProfileId
      * @param array $records
-     * @param  \Webkul\Bulkupload\Contracts\ImportProduct  $dataFlowProfileRecord
      * @param  \Webkul\Product\Contracts\Product  $product
      * @return array
      */
-    public function validateCSV($dataFlowProfileId, $records, $dataFlowProfileRecord, $product)
+    public function validateCSV($product)
     {
-        $messages = [];
-        $rules = [];
+        // Initialize rules with type validation rules
+        $this->rules = array_merge($product->getTypeInstance()->getTypeValidationRules(), [
+            'sku'                => ['required', 'unique:products,sku,' . $product->id, new Slug],
+            'url_key'            => ['required', new ProductCategoryUniqueSlug('products', $product->id)],
+            'special_price_from' => 'nullable|date',
+            'special_price_to'   => 'nullable|date|after_or_equal:special_price_from',
+            'special_price'      => ['nullable', new Decimal, 'lt:price'],
+        ]);
 
-        $profiler = $this->dataFlowProfileRepository->findOneByField('id', $dataFlowProfileId);
-
-        if ($dataFlowProfileRecord) {
-            foreach($records as $data) {
-                $this->rules = array_merge($product->getTypeInstance()->getTypeValidationRules(), [
-                    'sku'                => ['required', 'unique:products,sku,' . $product->id, new \Webkul\Core\Contracts\Validations\Slug],
-                    'special_price_from' => 'nullable|date',
-                    'special_price_to'   => 'nullable|date|after_or_equal:special_price_from',
-                    'special_price'      => ['nullable', new \Webkul\Core\Contracts\Validations\Decimal, 'lt:price'],
-                ]);
-
-                foreach ($product->getEditableAttributes() as $attribute) {
-                    if ($attribute->code == 'sku' || $attribute->type == 'boolean') {
-                        continue;
-                    }
-
-                    $validations = [];
-
-                    if (! isset($this->rules[$attribute->code])) {
-                        array_push($validations, $attribute->is_required ? 'required' : 'nullable');
-                    } else {
-                        $validations = $this->rules[$attribute->code];
-                    }
-
-                    if ($attribute->type == 'text' && $attribute->validation) {
-                        array_push($validations,
-                            $attribute->validation == 'decimal'
-                            ? new \Webkul\Core\Contracts\Validations\Decimal
-                            : $attribute->validation
-                        );
-                    }
-
-                    if ($attribute->type == 'price') {
-                        array_push($validations, new \Webkul\Core\Contracts\Validations\Decimal);
-                    }
-
-                    if ($attribute->is_unique) {
-                        $this->id = $product;
-
-                        array_push($validations, function ($field, $value, $fail) use ($attribute) {
-                            $column = ProductAttributeValue::$attributeTypeFields[$attribute->type];
-
-                            if (! $this->productAttributeValueRepository->isValueUnique($this->id, $attribute->id, $column, request($attribute->code))) {
-                                $fail('The :attribute has already been taken.');
-                            }
-                        });
-                    }
-
-                    $this->rules[$attribute->code] = $validations;
-                }
-
-                $validationCheckForUpdateData = $this->productFlatRepository
-                    ->findWhere(['sku' => $records['sku'], 'url_key' => $records['url_key']]);
-
-                if (is_null($validationCheckForUpdateData) || empty($validationCheckForUpdateData)) {
-                    $urlKeyUniqueness = "unique:product_flat,url_key";
-                    array_push($this->rules["url_key"], $urlKeyUniqueness);
-                }
-
-                return $this->rules;
+        foreach ($product->getEditableAttributes() as $attribute) {
+            if ($attribute->code == 'sku' || $attribute->type == 'boolean') {
+                continue;
             }
+
+            // Initialize validations with required or nullable based on attribute settings
+            $validations = [$attribute->is_required ? 'required' : 'nullable'];
+
+            if ($attribute->type == 'text' && $attribute->validation) {
+                // Add custom validation rules if applicable
+                $validations[] = $attribute->validation == 'decimal' ? new Decimal : $attribute->validation;
+            }
+
+            if ($attribute->type == 'price') {
+                // Add decimal validation for price attributes
+                $validations[] = new Decimal;
+            }
+
+            if ($attribute->is_unique) {
+                // Add unique validation for unique attributes
+                $validations[] = function ($field, $value, $fail) use ($attribute, $product) {
+                    $column = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+                    if (! $this->productAttributeValueRepository->isValueUnique($product, $attribute->id, $column, request($attribute->code))) {
+                        $fail('The :attribute has already been taken.');
+                    }
+                };
+            }
+
+            // Assign validations to the rules array
+            $this->rules[$attribute->code] = $validations;
         }
+        
+        return $this->rules;
     }
 
     /**
@@ -135,41 +111,21 @@ class HelperRepository extends Repository
      * @return void
      */
     public function createProductValidation($record, $loopCount)
-    {
+    {   
         try {
             $validateProduct = Validator::make($record, [
-                'type'                  => 'required',
-                'sku'                   => 'required',
-                'attribute_family_name' => 'required'
+                'type' => 'required',
+                'sku'  => 'required'
             ]);
 
-            if ( $validateProduct->fails() ) {
-                $errors = $validateProduct->errors()->getMessages();
+            if ($validateProduct->fails()) {
+                $errors = $validateProduct->errors()->all();
+                $recordCount = (int)$loopCount + 1;
+                $errorToBeReturn = array_map(function ($error) use ($recordCount) {
+                    return str_replace(".", "", $error) . " for record " . $recordCount;
+                }, $errors);
 
-                foreach($errors as $key => $error) {
-                    $recordCount = (int)$loopCount + (int)1;
-
-                    $errorToBeReturn[] = str_replace(".", "", $error[0]) . " for record " . $recordCount;
-                }
-
-                request()->countOfStartedProfiles =  $loopCount + 1;
-
-                $productsUploaded = $loopCount - request()->errorCount;
-
-                if (request()->numberOfCSVRecord != 0) {
-                    $remainDataInCSV = (int)request()->totalNumberOfCSVRecord - (int)request()->countOfStartedProfiles;
-                } else {
-                    $remainDataInCSV = 0;
-                }
-
-                $dataToBeReturn = array(
-                    'remainDataInCSV'           => $remainDataInCSV,
-                    'productsUploaded'          => $productsUploaded,
-                    'countOfStartedProfiles'    => request()->countOfStartedProfiles,
-                    'error'                     => $errorToBeReturn,
-                );
-
-                return $dataToBeReturn;
+                return ['error' => $errorToBeReturn];
             }
 
             return null;
