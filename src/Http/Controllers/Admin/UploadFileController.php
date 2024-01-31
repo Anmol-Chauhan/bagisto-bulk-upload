@@ -83,7 +83,6 @@ class UploadFileController extends Controller
      */
     public function storeProductsFile()
     {
-
         /**
          * @var mixed|\Illuminate\Http\Request|string|array|null $request
          */
@@ -202,7 +201,7 @@ class UploadFileController extends Controller
         if ($request->hasFile('file_path')) {
             $uploadedFile = request()->file('file_path');
 
-            if (in_array($uploadedFile->getClientOriginalExtension(), $validExtensions)) {
+            if (! in_array($uploadedFile->getClientOriginalExtension(), $validExtensions)) {
                 session()->flash('error', trans('bulkupload::app.admin.bulk-upload.messages.file-format-error'));
 
                 return back();
@@ -517,12 +516,10 @@ class UploadFileController extends Controller
 
     public function forgetProductUploadedSessionDetails()
     {
-        session()->forget('notUploadedProduct');
-        session()->forget('uploadedProduct');
-        session()->forget('completionMessage');
+        session()->forget(request('sessionName'));
 
         return response()->json([
-            'success'  => true,
+            'success' => true,
         ], 200);
     }
 }

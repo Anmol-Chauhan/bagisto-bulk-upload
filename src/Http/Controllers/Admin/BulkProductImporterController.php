@@ -3,6 +3,7 @@
 namespace Webkul\Bulkupload\Http\Controllers\Admin;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Webkul\Attribute\Repositories\AttributeFamilyRepository;
 use Webkul\Bulkupload\Repositories\BulkProductImporterRepository;
 use Webkul\Bulkupload\DataGrids\Admin\BulkProductImporterDataGrid;
@@ -54,7 +55,9 @@ class BulkProductImporterController extends Controller
 
         try {
             $this->bulkProductImporterRepository->create(request()->all());
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+        }
 
         return new JsonResponse([
             'message' => trans('bulkupload::app.admin.bulk-upload.messages.profile-saved'),

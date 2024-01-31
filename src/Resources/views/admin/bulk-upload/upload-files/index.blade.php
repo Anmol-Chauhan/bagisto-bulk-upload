@@ -8,8 +8,9 @@
         <!-- download samples -->
         <div class="import-product">
             <div class="flex justify-between items-center">
-                <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.sample-file')</p>  
-            </div><br>
+                <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.sample-file')</p>
+            </div>
+            <br>
 
             <x-admin::form
                 :action="route('admin.bulk-upload.upload-file.download-sample-files')"
@@ -32,6 +33,7 @@
                         <option value="">
                             @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
                         </option>
+
                         @foreach(config('product_types') as $key => $productType)
                             <option value="{{ $key }}-product-upload.csv">
                                 @lang('bulkupload::app.admin.bulk-upload.upload-files.csv-file', ['filetype' => ucwords($key) ])
@@ -49,7 +51,7 @@
                     >
                     </x-admin::form.control-group.error>
                 </x-admin::form.control-group>
-        
+
                 <!-- Download Sample Product -->
                 <div class="flex gap-x-[10px] items-center">
                     <button
@@ -58,18 +60,20 @@
                     >
                         @lang('bulkupload::app.admin.bulk-upload.upload-files.download')
                     </button>
-                </div><br>
+                </div>
+                <br>
+
             </x-admin::form>
         </div>
     </div>
-    
+
     <!-- Import New products -->
     <div class="import-new-products grid grid-cols-2">
         <div class="flex justify-between items-center">
-            <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.import-products')</p>  
+            <p class="text-[20px] text-gray-800 dark:text-white font-bold">@lang('bulkupload::app.admin.bulk-upload.upload-files.import-products')</p>
         </div>
     </div>
-    
+
     <div class="grid grid-cols-2">
         <importer-product-input></importer-product-input>
     </div>
@@ -83,7 +87,7 @@
                     enctype="multipart/form-data"
                 >
                     @csrf
-                
+
                     <x-admin::form.control-group class="w-full mb-[10px]">
                         <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.upload-files.is-downloadable')
@@ -124,7 +128,6 @@
                             @click="showlinkSamples"
                             value="is_link_have_sample"
                             v-model="isLinkSampleHaveChecked"
-                            
                         >
                         </x-admin::form.control-group.control>
                     </x-admin::form.control-group>
@@ -182,7 +185,7 @@
                             :value="old('attribute_family_id')"
                             rules="required"
                             v-model="attribute_family_id"
-                            @change="onChange"                           
+                            @change="onChange"
                         >
                             <option value="">
                                 @lang('bulkupload::app.admin.bulk-upload.run-profile.please-select')
@@ -201,12 +204,12 @@
                         >
                         </x-admin::form.control-group.error>
                     </x-admin::form.control-group>
-                
+
                     <x-admin::form.control-group class="w-full mb-[10px]">
                         <x-admin::form.control-group.label class="required">
                             @lang('bulkupload::app.admin.bulk-upload.bulk-product-importer.index')
                         </x-admin::form.control-group.label>
-        
+
                         <x-admin::form.control-group.control
                             type="select"
                             name="bulk_product_importer_id"
@@ -221,14 +224,14 @@
                                 @{{ dataflowprofile.name }}
                             </option>
                         </x-admin::form.control-group.control>
-        
+
                         <x-admin::form.control-group.error
                             class="mt-3"
                             control-name="bulk_product_importer_id"
                         >
                         </x-admin::form.control-group.error>
                     </x-admin::form.control-group>
-            
+
                     <x-admin::form.control-group class="w-full mb-[10px]">
                         <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.upload-files.file')
@@ -241,7 +244,7 @@
                         >
                         </x-admin::form.control-group.control>
                     </x-admin::form.control-group>
-        
+
                     <x-admin::form.control-group class="w-full mb-[10px]">
                         <x-admin::form.control-group.label>
                             @lang('bulkupload::app.admin.bulk-upload.upload-files.image')
@@ -254,10 +257,10 @@
                         >
                         </x-admin::form.control-group.control>
                     </x-admin::form.control-group>
-    
+
                     <!-- Modal Submission -->
                     <div class="flex gap-x-[10px] items-center">
-                        <button 
+                        <button
                             type="submit"
                             class="primary-button"
                         >
@@ -287,6 +290,7 @@
                             isSampleAvailableChecked: false,
                         }
                     },
+
                     methods:{
                         showOptions() {
                             this.isDownloadableChecked = ! this.isDownloadableChecked;
@@ -296,17 +300,20 @@
                             this.linkSampleFiles = false;
                             this.sampleFile = false;
                         },
+
                         showlinkSamples() {
-                            this.isLinkSampleHaveChecked = !  this.isLinkSampleHaveChecked;
+                            this.isLinkSampleHaveChecked = ! this.isLinkSampleHaveChecked;
                             this.linkSampleFiles = ! this.linkSampleFiles;
                         },
+
                         showSamples() {
                             this.isSampleAvailableChecked = ! this.isSampleAvailableChecked;
                             this.sampleFile = ! this.sampleFile;
                         },
-                        onChange() {           
+
+                        onChange() {
                             var uri = "{{ route('admin.bulk-upload.upload-file.get-all-profile') }}"
-                            
+
                             this.$axios.get(uri, {
                                 params: {
                                     'attribute_family_id': this.attribute_family_id,

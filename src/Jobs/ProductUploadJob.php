@@ -70,9 +70,7 @@ class ProductUploadJob implements ShouldQueue
         }
 
         // After Uploded Product store success message in session
-        if ($this->countCSV == $count) {
-            session()->put('completionMessage', "CSV Product Successfully Imported");
-        }
+        session()->put('completionMessage', "CSV Product Successfully Imported");
 
         if ($isError) {
             Excel::store(new DataGridExport(collect($records)), 'error-csv-file/'.$this->dataFlowProfileRecord->profiler->id.'/'.Str::random(10).'.csv');
