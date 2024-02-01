@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Webkul\Bulkupload\Http\Controllers\Admin\BulkProductImporterController;
 use Webkul\Bulkupload\Http\Controllers\Admin\UploadFileController;
+use Webkul\Bulkupload\Http\Controllers\Admin\BulkProductImporterController;
 
 Route::group(['middleware' => ['web', 'admin'], 'prefix' => config('app.admin_url')], function () {
         Route::prefix('bulkupload')->group(function () {
@@ -57,6 +57,8 @@ Route::group(['middleware' => ['web', 'admin'], 'prefix' => config('app.admin_ur
 
                 // Read csv file and exicute the uploading product
                 Route::post('read-csv', 'readCSVData')->name('admin.bulk-upload.upload-file.run-profile.read-csv');
+
+                Route::post('import-csv', 'importCsv')->name('admin.bulk-upload.upload-file.run-profile.import-csv');
 
                 // get error after product uploading
                 Route::get('download-csv', 'downloadCsv')->name('admin.bulk-upload.upload-file.run-profile.download-csv');

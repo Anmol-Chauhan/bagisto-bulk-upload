@@ -2,13 +2,15 @@
 
 namespace Webkul\Bulkupload\Http\Controllers\Admin;
 
-use Illuminate\Support\Facades\File;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Webkul\Admin\Imports\DataGridImport;
+use Webkul\Bulkupload\Jobs\ProductUploadJob;
 use Webkul\Attribute\Repositories\AttributeFamilyRepository;
 use Webkul\Bulkupload\Repositories\{ImportProductRepository, BulkProductImporterRepository};
-use Webkul\Bulkupload\Jobs\ProductUploadJob;
 
 class UploadFileController extends Controller
 {
@@ -280,14 +282,14 @@ class UploadFileController extends Controller
     public function readCSVData()
     {
         $productFileRecord = $this->importProductRepository->where([
-            'bulk_product_importer_id' => request()->bulk_product_importer_id,
-            'id'                       => request()->product_file_id,
+            'bulk_product_importer_id' => request('bulk_product_importer_id'),
+            'id'                       => request('product_file_id'),
         ])->first();
 
         if (! $productFileRecord) {
             return response()->json([
                 'error'   => true,
-                'message' => 'Selected File not found.',
+                'message' => trans('bulkupload::app.admin.bulk-upload.run-profile.file-not-found'),
             ]);
         }
 
@@ -303,7 +305,7 @@ class UploadFileController extends Controller
             // Handle the case when $countCSV is false (or any condition you need).
             return response()->json([
                 "success" => false,
-                "message" => "No CSV Data to Import",
+                "message" => trans('bulkupload::app.admin.bulk-upload.run-profile.csv-data-not-found'),
             ]);
         }
 
@@ -321,7 +323,7 @@ class UploadFileController extends Controller
 
         return response()->json([
             "success" => true,
-            "message" => "CSV Product Successfully Imported",
+            "message" => trans('bulkupload::app.admin.bulk-upload.run-profile.success'),
         ]);
     }
 
@@ -478,7 +480,6 @@ class UploadFileController extends Controller
 
         return $csvData;
     }
-
 
     /**
      * Get Uploaded and not uploaded product detail from session

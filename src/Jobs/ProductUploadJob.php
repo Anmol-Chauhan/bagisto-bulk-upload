@@ -35,10 +35,9 @@ class ProductUploadJob implements ShouldQueue
     {
         // flush session when the new CSV file executing
         session()->forget('notUploadedProduct');
-        session()->forget('uploadedProduct');
         session()->forget('completionMessage');
 
-        $simpleProductRepository = app('Webkul\Bulkupload\Repositories\Products\SimpleProductRepository');
+        $productRepository = app('Webkul\Bulkupload\Repositories\Products\ProductRepository');
 
         $errorArray = [];
 
@@ -54,7 +53,7 @@ class ProductUploadJob implements ShouldQueue
             foreach($data as $key => $arr) {
                 $count++;
 
-                $uploadedProduct = $simpleProductRepository->createProduct($this->imageZipName, $this->dataFlowProfileRecord, $arr, $key);
+                $uploadedProduct = $productRepository->createProduct($this->imageZipName, $this->dataFlowProfileRecord, $arr, $key);
 
                 if (! empty($uploadedProduct)) {
                     $isError = true;

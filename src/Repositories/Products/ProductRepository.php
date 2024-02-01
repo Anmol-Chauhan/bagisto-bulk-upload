@@ -9,11 +9,11 @@ use Webkul\Core\Eloquent\Repository as BaseRepository;
 use Webkul\Attribute\Repositories\{AttributeFamilyRepository, AttributeOptionRepository};
 use Webkul\Category\Repositories\CategoryRepository;
 use Webkul\Inventory\Repositories\InventorySourceRepository;
-use Webkul\Product\Repositories\{ProductCustomerGroupPriceRepository, ProductRepository};
+use Webkul\Product\Repositories\{ProductCustomerGroupPriceRepository, ProductRepository as CoreProductRepository};
 use Webkul\Bulkupload\Repositories\{ImportProductRepository, ProductImageRepository};
 use Webkul\Bulkupload\Repositories\Products\HelperRepository;
 
-class SimpleProductRepository extends BaseRepository
+class ProductRepository extends BaseRepository
 {
     protected $errors = [];
 
@@ -25,7 +25,7 @@ class SimpleProductRepository extends BaseRepository
      * @param  \Webkul\Attribute\Repositories\AttributeFamilyRepository  $attributeFamilyRepository
      * @param  \Webkul\Attribute\Repositories\AttributeOptionRepository  $attributeOptionRepository
      * @param  \Webkul\Category\Repositories\CategoryRepository  $categoryRepository
-     * @param  \Webkul\Product\Repositories\ProductRepository  $productRepository
+     * @param  \Webkul\Product\Repositories\CoreProductRepository  $productRepository
      * @param  \Webkul\Inventory\Repositories\InventorySourceRepository  $inventorySourceRepository
      * @param  \Webkul\Bulkupload\Repositories\ImportProductRepository  $importProductRepository
      * @param  \Webkul\Bulkupload\Repositories\ProductImageRepository  $productImageRepository
@@ -37,7 +37,7 @@ class SimpleProductRepository extends BaseRepository
         protected AttributeFamilyRepository $attributeFamilyRepository,
         protected AttributeOptionRepository $attributeOptionRepository,
         protected CategoryRepository $categoryRepository,
-        protected ProductRepository $productRepository,
+        protected CoreProductRepository $productRepository,
         protected InventorySourceRepository $inventorySourceRepository,
         protected ImportProductRepository $importProductRepository,
         protected ProductImageRepository $productImageRepository,
